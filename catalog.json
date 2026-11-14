@@ -1,0 +1,18 @@
+[
+  {
+    "id": "missing-abbreviations",
+    "title": "缩略",
+    "edition": 2,
+    "count": 91,
+    "description": "从缩略词中被省略的部分，猜出原来的缩略词。挑战来自 25 位作者的 91 道文字谜题，支持提示、难度排序和本地答题进度保存。",
+    "themeColor": "#263cff"
+  },
+  {
+    "id": "unicode-plus-one",
+    "title": "unicode+1",
+    "edition": 3,
+    "count": 20,
+    "description": "还原 Unicode 码位加一后的问句，再回答问题。挑战来自 3 位作者的 20 道文字谜题，支持提示、难度排序、原问句切换和本地进度保存。",
+    "themeColor": "#963a31"
+  }
+]
