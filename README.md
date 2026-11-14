@@ -61,7 +61,8 @@ npm run preview
 - `sites/<site>/main.tsx`：各期 React 入口；对应根目录下的 `<site>/index.html`。
 - `src/shared/`：判题、进度、提示、完成弹窗和卡片的公共行为。新增页面可采用独立组件，不要求共用卡片外观。
 - `src/home/`：统一入口首页，不加载各期完整题库。
-- `scripts/prepare.mjs`：校验题库，在本地预计算 unicode+1 的字素格与原问句；开发时修改题库会重新生成。
+- `scripts/prepare.mjs`：通用题库准备入口，负责读取、校验、调用可选转换器和输出生成数据。
+- `scripts/transformer/<site-id>.mjs`：各期专用的构建转换器。unicode+1 的字素分格与原问句计算位于 `unicode-plus-one.mjs`；开发时修改题库或转换器会重新生成数据。
 - `public/<site>/`：明确放入构建结果的图标和分享图，勿存放文档、凭据或工作记录。
 - `src/generated/`、`dist/`：自动生成并被忽略。只将 `dist/` 作为未来静态发布的产物，不能部署整个仓库。
 
@@ -70,3 +71,10 @@ npm run preview
 进度按活动 ID 使用独立 localStorage 键，不主动过期、不跨设备同步。切换到新域名后不迁移旧域名进度；更改视觉或题序时不要更换存储键或重新编号题目。`?preview=completion` 只预览完成效果，不写入进度。
 
 unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmenter`；不要用简单的字符拆分替代它，否则会破坏国旗等组合字符。新增题型可以选择自己的判题规则，不必沿用默认的 NFKC、去空白和忽略大小写规则。
+
+
+## 为特殊题型添加转换器
+
+普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
+
+转换器只在本地开发和构建时运行，不修改原题库文件，也不处理服务器操作。已配置转换器的导入或执行失败会中止准备，不会悄悄退回原始数据。

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import catalog from './catalog.json' with { type: 'json' };
 
@@ -13,16 +13,19 @@ export default defineConfig({
     name: 'pqr-static-metadata',
     configureServer(server) {
       const sourceFiles = catalog.map(site => resolve(import.meta.dirname, 'sites', site.id, 'puzzles.json'));
-      server.watcher.add(sourceFiles);
-      server.watcher.on('change', file => {
-        if (!sourceFiles.includes(file)) return;
+      const transformerDirectory = resolve(import.meta.dirname, 'scripts', 'transformer');
+      server.watcher.add([...sourceFiles, transformerDirectory]);
+      const refreshData = (file: string) => {
+        const isTransformer = dirname(file) === transformerDirectory && file.endsWith('.mjs');
+        if (!sourceFiles.includes(file) && !isTransformer) return;
         try {
           execFileSync(process.execPath, ['scripts/prepare.mjs'], { cwd: import.meta.dirname, stdio: 'pipe' });
           server.ws.send({ type: 'full-reload' });
         } catch (error) {
           server.config.logger.error(String(error));
         }
-      });
+      };
+      for (const event of ['add', 'change', 'unlink'] as const) server.watcher.on(event, refreshData);
     },
     transformIndexHtml: {
       order: 'pre',
