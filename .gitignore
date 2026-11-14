@@ -3,3 +3,11 @@
 
 # macOS
 .DS_Store
+
+# Local dependencies, generated build input and public output
+node_modules/
+dist/
+src/generated/
+playwright-report/
+test-results/
+*.tsbuildinfo

@@ -26,3 +26,23 @@
 ## 仓库保护
 
 上述保护是开发约定。GitHub 上的分支保护或 Ruleset 需要单独配置；文档和本地 Git 不会自动启用远端保护。未启用时仍 MUST 遵守 PR 流程，不借此直接修改 `main`。
+
+## 本仓库的本地检查
+
+- 使用 `npm ci` 安装锁文件中的依赖，以 `npm run dev` 启动开发；新增依赖需说明实际用途，保留每期独立样式。
+- 排版统一使用 Prettier（见 `.prettierrc.json`），编辑后运行 `npm run format`；`npm run format:check` 只检查不修改。批量格式化 MUST 与功能修改分开提交，不手工格式化生成文件或静态资源。
+- 完成变更后运行 `npm run check`（包含格式检查）。涉及网页交互时，在构建后运行 `npm run test:e2e`；首次需安装 Playwright 浏览器。
+- 题库先通过本地校验及 Unicode 预计算，再构建。`src/generated/`、`dist/`、浏览器报告和截图不提交；本地截图放入 `.agents/local/`。
+- 页面目标为同域名下的独立静态路径。修改分享信息时检查构建 HTML，不依赖浏览器启动后设置元信息。QQ／微信内置浏览器的正式支持需要真机验证。
+
+## 共享能力与站点边界
+
+- `src/components/`、`src/hooks/`、`src/lib/`、`src/types/` 和 `src/styles/` MUST 保持与具体站点无关，不导入 `src/sites/`、生成题库或活动目录，不维护具体活动 ID 的分支或类型联合。
+- 每期专属的 DOM 结构、主题样式、题面渲染、特殊字段及专属交互 MUST 放在对应的 `src/sites/<site>/` 下，不通过检查题库特殊字段隐式选择某个站点视图。
+- 共享层通过 hook、props、children/render prop 或 slot 提供通用状态与行为；站点负责组合界面。不以新增 `isXxx` 题型开关替代边界划分。
+
+- 网页源码 MUST 放在 `src/`，每期页面位于 `src/sites/<site>/`，首页位于 `src/home/`。`public/` 只存放直接复制到产物的静态资源；构建脚本、配置和测试仍使用各自的项目级目录。
+- 公共组件 MUST 放在 `src/components/<PascalCase>/`，入口为 `index.tsx`。公共组件和站点页面的子组件放在自身的 `components/`；单文件子组件直接使用 `PascalCase.tsx`，需要配套文件时再创建 PascalCase 目录，以 `index.tsx` 为入口。
+- 组件专用 hook MUST 与所属组件入口同层，不另建 `hooks/`。跨组件的独立通用 hook 放在 `src/hooks/`，工具、类型与通用样式分别放在 `src/lib/`、`src/types/` 和 `src/styles/`。按需建立目录，不创建空结构。
+
+- 弹窗、气泡等通用复杂交互 SHOULD 优先使用 `@base-ui/react`，公共组件只保留必要组合与状态协调。具体站点维护样式；替换底层组件后 MUST 验证键盘、触屏、焦点恢复、无障碍语义与窄屏布局。

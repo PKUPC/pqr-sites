@@ -1,6 +1,6 @@
 # Agent 工作入口
 
-本仓库维护 PQR（P&ku Quiz Research）的公开静态存档。开始开发、修改文档或迁移内容之前，MUST 阅读以下文件，并检查实际 Git 状态：
+本仓库维护 PQR（P&KU Quiz Research）的公开静态存档。开始开发、修改文档或迁移内容之前，MUST 阅读以下文件，并检查实际 Git 状态：
 
 1. [项目介绍](README.md)
 2. [开发流程](.agents/rules/development.md)

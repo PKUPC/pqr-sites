@@ -1,0 +1,14 @@
+# Dependencies and generated files
+node_modules/
+dist/
+src/generated/
+package-lock.json
+*.tsbuildinfo
+
+# Static assets copied unchanged
+public/
+
+# Local-only artifacts
+.agents/local/
+playwright-report/
+test-results/
