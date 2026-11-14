@@ -1,10 +1,10 @@
-# PQR · P&ku Quiz Research
+# PQR · P&KU Quiz Research
 
 ## 欢迎来到 PQR！
 
-这是 P&KU 群在每周五晚 22:00 举行的 Quiz/微型谜题企划 **P&ku Quiz Research（PQR）**！我们围绕不同主题，尝试各种变体 Quiz 与微型谜题，把群聊中的灵感整理成可以随时游玩的线上存档。
+这是 P&KU 群在每周五晚 22:00 举行的 Quiz/微型谜题企划 **P&KU Quiz Research（PQR）**！我们围绕不同主题，尝试各种变体 Quiz 与微型谜题，把群聊中的灵感整理成可以随时游玩的线上存档。
 
-**PQRST（P&ku Quiz Researchers）** 是参与建设 PQR 的出题组：从出题、提供企划灵感，到归档与页面设计，都欢迎大家一起参与。
+**PQRST（P&KU Quiz Researchers）** 是参与建设 PQR 的出题组：从出题、提供企划灵感，到归档与页面设计，都欢迎大家一起参与。
 
 ## 怎样游玩线上存档
 
@@ -31,3 +31,42 @@ PQR 是在 P&KU 群中开展的每周 Quiz/微型谜题活动。想了解 P&KU �
 ## 参与开发
 
 开发前请阅读 [Agent 入口](AGENTS.md) 和 [.agents/rules/development.md](.agents/rules/development.md)。
+
+
+## 本地开发
+
+使用 Node.js 24 LTS（见 `.nvmrc`；也支持 Node.js 26 LTS）与 npm。当前是 React + TypeScript + Vite 多页面工程；线上只需要提供构建后的静态文件。
+
+```sh
+npm ci
+npm run dev
+```
+
+本地开发地址为 `http://127.0.0.1:5173/`，两期页面分别位于 `/missing-abbreviations/` 和 `/unicode-plus-one/`。首页、每期页面均为独立 HTML 入口，无需客户端路由或服务器端 Node 服务。
+
+```sh
+npm run check
+npx playwright install chromium webkit
+npm run test:e2e
+npm run preview
+```
+
+`check` 包含代码检查、逻辑测试、类型检查、生产构建和公开产物检查。浏览器测试针对构建后的页面；先运行 `check` 或 `build`。`preview` 默认在 `http://127.0.0.1:4173/` 预览。Chromium/WebKit 自动化与移动视口检查不能代替 QQ／微信内置浏览器的真机验收。
+
+## 内容与代码组织
+
+- `catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
+- `sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
+- `sites/<site>/Introduction.tsx`、`style.css`：每期独立介绍、署名与视觉样式。
+- `sites/<site>/main.tsx`：各期 React 入口；对应根目录下的 `<site>/index.html`。
+- `src/shared/`：判题、进度、提示、完成弹窗和卡片的公共行为。新增页面可采用独立组件，不要求共用卡片外观。
+- `src/home/`：统一入口首页，不加载各期完整题库。
+- `scripts/prepare.mjs`：校验题库，在本地预计算 unicode+1 的字素格与原问句；开发时修改题库会重新生成。
+- `public/<site>/`：明确放入构建结果的图标和分享图，勿存放文档、凭据或工作记录。
+- `src/generated/`、`dist/`：自动生成并被忽略。只将 `dist/` 作为未来静态发布的产物，不能部署整个仓库。
+
+构建目标地址为 `https://pqr.pkupuzzle.art/` 及上述两个子路径，canonical、Open Graph 与 Twitter 元信息直接写入构建 HTML。README 上方的子域名链接仍是现有线上地址；本地重构不会切换服务器、DNS 或重定向。
+
+进度按活动 ID 使用独立 localStorage 键，不主动过期、不跨设备同步。切换到新域名后不迁移旧域名进度；更改视觉或题序时不要更换存储键或重新编号题目。`?preview=completion` 只预览完成效果，不写入进度。
+
+unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmenter`；不要用简单的字符拆分替代它，否则会破坏国旗等组合字符。新增题型可以选择自己的判题规则，不必沿用默认的 NFKC、去空白和忽略大小写规则。
