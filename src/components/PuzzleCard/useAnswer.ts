@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type FormEventHandler, type InputHTMLAttributes, type RefObject } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEventHandler,
+  type InputHTMLAttributes,
+  type RefObject,
+} from 'react';
 import { acceptsAnswer, normalizeAnswer, type AnswerPolicy } from '../../lib/answers';
 
 export type AnswerResult = 'empty' | 'incorrect' | 'correct';
@@ -8,11 +15,22 @@ export interface AnswerState {
   recentIncorrect: boolean;
   referenceAnswer: string;
   inputRef: RefObject<HTMLInputElement | null>;
-  inputProps: Pick<InputHTMLAttributes<HTMLInputElement>, 'value' | 'readOnly' | 'onChange' | 'onCompositionStart' | 'onCompositionEnd'>;
+  inputProps: Pick<
+    InputHTMLAttributes<HTMLInputElement>,
+    'value' | 'readOnly' | 'onChange' | 'onCompositionStart' | 'onCompositionEnd'
+  >;
   onSubmit: FormEventHandler<HTMLFormElement>;
 }
 
-export function useAnswer({ id, answers, solved, onSolve, lockWhenSolved = false, policy, onAttempt }: {
+export function useAnswer({
+  id,
+  answers,
+  solved,
+  onSolve,
+  lockWhenSolved = false,
+  policy,
+  onAttempt,
+}: {
   id: number;
   answers: string | string[];
   solved: boolean;
@@ -29,7 +47,7 @@ export function useAnswer({ id, answers, solved, onSolve, lockWhenSolved = false
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timeout.current), []);
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = event => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     if (composing.current || (lockWhenSolved && solved)) return;
     clearTimeout(timeout.current);
@@ -54,13 +72,24 @@ export function useAnswer({ id, answers, solved, onSolve, lockWhenSolved = false
   };
 
   return {
-    error, recentIncorrect, referenceAnswer: [answers].flat()[0], inputRef, onSubmit,
+    error,
+    recentIncorrect,
+    referenceAnswer: [answers].flat()[0],
+    inputRef,
+    onSubmit,
     inputProps: {
       value,
       readOnly: lockWhenSolved && solved,
-      onCompositionStart: () => { composing.current = true; },
-      onCompositionEnd: () => { composing.current = false; },
-      onChange: event => { setValue(event.target.value); setError(null); },
+      onCompositionStart: () => {
+        composing.current = true;
+      },
+      onCompositionEnd: () => {
+        composing.current = false;
+      },
+      onChange: (event) => {
+        setValue(event.target.value);
+        setError(null);
+      },
     },
   };
 }

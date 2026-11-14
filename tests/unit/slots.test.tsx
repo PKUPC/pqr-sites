@@ -6,10 +6,14 @@ import { useQuiz } from '../../src/hooks/useQuiz';
 it('lets a caller supply the complete answer UI without a shared card wrapper', () => {
   const html = renderToStaticMarkup(
     <PuzzleCard id={7} answers="answer" solved={false} onSolve={() => {}}>
-      {answer => <section className="custom-layout"><form onSubmit={answer.onSubmit}>
-        <input {...answer.inputProps} ref={answer.inputRef} aria-label="Custom answer" />
-        <button>Custom submit</button>
-      </form></section>}
+      {(answer) => (
+        <section className="custom-layout">
+          <form onSubmit={answer.onSubmit}>
+            <input {...answer.inputProps} ref={answer.inputRef} aria-label="Custom answer" />
+            <button>Custom submit</button>
+          </form>
+        </section>
+      )}
     </PuzzleCard>,
   );
   expect(html).toMatch(/^<section class="custom-layout">/);
@@ -19,10 +23,18 @@ it('lets a caller supply the complete answer UI without a shared card wrapper', 
 
 it('supports an unrelated quiz ID and caller-specific data without changing shared code', () => {
   function CustomQuiz() {
-    const quiz = useQuiz({ storageId: 'another-quiz', preview: true, puzzles: [
-      { id: 7, question: 'Custom question', answers: 'answer', illustration: 'drawing.svg' },
-    ] });
-    return <output data-complete={quiz.complete} data-illustration={quiz.items[0].puzzle.illustration}>{quiz.solved.size} / {quiz.total}</output>;
+    const quiz = useQuiz({
+      storageId: 'another-quiz',
+      preview: true,
+      puzzles: [
+        { id: 7, question: 'Custom question', answers: 'answer', illustration: 'drawing.svg' },
+      ],
+    });
+    return (
+      <output data-complete={quiz.complete} data-illustration={quiz.items[0].puzzle.illustration}>
+        {quiz.solved.size} / {quiz.total}
+      </output>
+    );
   }
   const html = renderToStaticMarkup(<CustomQuiz />);
   expect(html).toContain('data-complete="true"');

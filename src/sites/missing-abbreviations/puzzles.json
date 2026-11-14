@@ -477,10 +477,7 @@
     "id": 55,
     "question": "乐声",
     "author": "Winfrid",
-    "answers": [
-      "快男",
-      "快女"
-    ],
+    "answers": ["快男", "快女"],
     "hint": "○乐○声；综艺",
     "difficulty": 4
   },
@@ -520,10 +517,7 @@
     "id": 60,
     "question": "坏",
     "author": "Winfrid",
-    "answers": [
-      "崩三",
-      "崩3"
-    ],
+    "answers": ["崩三", "崩3"],
     "hint": "○坏○；游戏",
     "difficulty": 5
   },
@@ -603,10 +597,7 @@
     "id": 88,
     "question": "属学",
     "author": "V. Scarlescu",
-    "answers": [
-      "附中",
-      "附小"
-    ],
+    "answers": ["附中", "附小"],
     "hint": "○属○学",
     "difficulty": 2
   },
@@ -637,10 +628,7 @@
     "id": 67,
     "question": "理学",
     "author": "Seleclipse",
-    "answers": [
-      "物院",
-      "物化"
-    ],
+    "answers": ["物院", "物化"],
     "hint": "○理学○/○理○学；与北京大学有关",
     "difficulty": 3,
     "tags": {
@@ -740,10 +728,7 @@
     "id": 76,
     "question": "芝",
     "author": "想放假の猫猫战士",
-    "answers": [
-      "麻油",
-      "麻酱"
-    ],
+    "answers": ["麻油", "麻酱"],
     "hint": "芝○○",
     "difficulty": 5,
     "tags": {

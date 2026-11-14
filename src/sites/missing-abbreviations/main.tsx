@@ -8,5 +8,7 @@ import './accessibility.css';
 import '../../styles/accessibility.css';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><App puzzles={puzzles as Puzzle[]} /></StrictMode>,
+  <StrictMode>
+    <App puzzles={puzzles as Puzzle[]} />
+  </StrictMode>,
 );

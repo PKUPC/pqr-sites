@@ -1,4 +1,8 @@
-export interface AnswerPolicy { compatibility?: boolean; ignoreWhitespace?: boolean; ignoreCase?: boolean }
+export interface AnswerPolicy {
+  compatibility?: boolean;
+  ignoreWhitespace?: boolean;
+  ignoreCase?: boolean;
+}
 
 export function normalizeAnswer(value: string, policy: AnswerPolicy = {}) {
   let result = policy.compatibility === false ? value : value.normalize('NFKC');
@@ -8,5 +12,8 @@ export function normalizeAnswer(value: string, policy: AnswerPolicy = {}) {
 
 export function acceptsAnswer(guess: string, answers: string | string[], policy?: AnswerPolicy) {
   const normalized = normalizeAnswer(guess, policy);
-  return Boolean(normalized) && [answers].flat().some(answer => normalizeAnswer(answer, policy) === normalized);
+  return (
+    Boolean(normalized) &&
+    [answers].flat().some((answer) => normalizeAnswer(answer, policy) === normalized)
+  );
 }

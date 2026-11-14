@@ -5,6 +5,7 @@ export function useFloatingNoteController() {
   const [active, setActive] = useState<string | null>(null);
   return {
     active,
-    setOpen: (id: string, open: boolean) => setActive(current => open ? id : current === id ? null : current),
+    setOpen: (id: string, open: boolean) =>
+      setActive((current) => (open ? id : current === id ? null : current)),
   };
 }

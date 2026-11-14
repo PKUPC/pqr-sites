@@ -2,25 +2,39 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import unicode from '../../src/sites/unicode-plus-one/puzzles.json' with { type: 'json' };
 
-test('home exposes both real document routes and metadata without JavaScript', async ({ browser }) => {
+test('home exposes both real document routes and metadata without JavaScript', async ({
+  browser,
+}) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  for (const [slug, title] of [['', 'PQR'], ['missing-abbreviations/', '缩略'], ['unicode-plus-one/', 'unicode+1']]) {
+  for (const [slug, title] of [
+    ['', 'PQR'],
+    ['missing-abbreviations/', '缩略'],
+    ['unicode-plus-one/', 'unicode+1'],
+  ]) {
     await page.goto('/' + slug);
     await expect(page).toHaveTitle(new RegExp(title.replace('+', '\\+')));
-    await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', `https://pqr.pkupuzzle.art/${slug}`);
-    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /https:\/\/pqr.pkupuzzle.art\/.+og-image.png/);
+    await expect(page.locator('link[rel=canonical]')).toHaveAttribute(
+      'href',
+      `https://pqr.pkupuzzle.art/${slug}`,
+    );
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      /https:\/\/pqr.pkupuzzle.art\/.+og-image.png/,
+    );
     await expect(page.locator('noscript')).toBeVisible();
   }
   await context.close();
 });
 
-test('abbreviations: wrong answer, both alternatives, persistence, filter and sort', async ({ page }) => {
+test('abbreviations: wrong answer, both alternatives, persistence, filter and sort', async ({
+  page,
+}) => {
   await page.goto('/missing-abbreviations/');
   await expect(page.locator('.card')).toHaveCount(91);
   const card = page.locator('[data-puzzle-id="88"]');
   await card.locator('input').fill('错误答案');
-  await card.locator('form').evaluate(form => (form as HTMLFormElement).requestSubmit());
+  await card.locator('form').evaluate((form) => (form as HTMLFormElement).requestSubmit());
   await expect(card.locator('.feedback')).toHaveText('答案不正确，请再试一次。');
   await expect(card.locator('input')).toHaveAttribute('aria-invalid', 'true');
   for (const answer of ['附中', '附小']) {
@@ -37,7 +51,9 @@ test('abbreviations: wrong answer, both alternatives, persistence, filter and so
   await expect(page.locator('.card:visible').first()).toHaveAttribute('data-puzzle-id', '38');
 });
 
-test('unicode: new authors, difficulties, readonly canonical answer and persistent original toggle', async ({ page }) => {
+test('unicode: new authors, difficulties, readonly canonical answer and persistent original toggle', async ({
+  page,
+}) => {
   await page.goto('/unicode-plus-one/');
   await expect(page.locator('.card')).toHaveCount(20);
   await expect(page.locator('#author-filter option')).toHaveCount(4);
@@ -62,7 +78,9 @@ test('unicode: new authors, difficulties, readonly canonical answer and persiste
 });
 
 for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
-  test(`${slug}: hints stay open under pointer, dismiss with global Escape and keyboard`, async ({ page }) => {
+  test(`${slug}: hints stay open under pointer, dismiss with global Escape and keyboard`, async ({
+    page,
+  }) => {
     await page.goto(`/${slug}/`);
     const card = page.locator('.card').first();
     const button = card.locator('.hint-toggle').first();
@@ -71,7 +89,11 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await expect(note).toBeVisible();
     const buttonBox = (await button.boundingBox())!;
     const noteBox = (await note.boundingBox())!;
-    await page.mouse.move(buttonBox.x + buttonBox.width / 2, noteBox.y + Math.min(noteBox.height / 2, 10), { steps: 6 });
+    await page.mouse.move(
+      buttonBox.x + buttonBox.width / 2,
+      noteBox.y + Math.min(noteBox.height / 2, 10),
+      { steps: 6 },
+    );
     await expect(note).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(note).toBeHidden();
@@ -82,7 +104,10 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
-  test(`${slug}: only one note opens and touch controls toggle and dismiss it`, async ({ page, browser }) => {
+  test(`${slug}: only one note opens and touch controls toggle and dismiss it`, async ({
+    page,
+    browser,
+  }) => {
     await page.goto(`/${slug}/`);
     const triggers = page.locator('.hint-toggle');
     await triggers.nth(0).focus();
@@ -92,12 +117,18 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await triggers.nth(1).press('Enter');
     await expect(triggers.nth(0)).toHaveAttribute('aria-expanded', 'false');
     await expect(triggers.nth(1)).toHaveAttribute('aria-expanded', 'true');
-    const accessibility = await new AxeBuilder({ page }).exclude('[data-base-ui-focus-guard]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    const accessibility = await new AxeBuilder({ page })
+      .exclude('[data-base-ui-focus-guard]')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
     expect(accessibility.violations).toEqual([]);
     await page.locator('h1').click();
     await expect(page.locator('.float-trigger[aria-expanded="true"]')).toHaveCount(0);
 
-    const context = await browser.newContext({ hasTouch: true, viewport: { width: 390, height: 844 } });
+    const context = await browser.newContext({
+      hasTouch: true,
+      viewport: { width: 390, height: 844 },
+    });
     try {
       const touchPage = await context.newPage();
       await touchPage.goto(`/${slug}/`);
@@ -110,18 +141,27 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
       await trigger.tap();
       await touchPage.locator('h1').tap();
       await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    } finally { await context.close(); }
+    } finally {
+      await context.close();
+    }
   });
 
-  test(`${slug}: completion preview traps focus, restores it and never saves synthetic progress`, async ({ page }) => {
+  test(`${slug}: completion preview traps focus, restores it and never saves synthetic progress`, async ({
+    page,
+  }) => {
     await page.goto(`/${slug}/?preview=completion`);
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await dialog.evaluate(element => element.getAnimations().forEach(animation => animation.finish()));
+    await dialog.evaluate((element) =>
+      element.getAnimations().forEach((animation) => animation.finish()),
+    );
     // Base UI intentionally exposes redirecting focus guards to VoiceOver.
     // Keep keyboard assertions below; exclude only library sentinels from axe.
     // https://github.com/mui/base-ui/issues/5237#issuecomment-4978602561
-    const accessibility = await new AxeBuilder({ page }).exclude('[data-base-ui-focus-guard]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    const accessibility = await new AxeBuilder({ page })
+      .exclude('[data-base-ui-focus-guard]')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
     expect(accessibility.violations).toEqual([]);
     await page.getByRole('button', { name: '继续浏览' }).focus();
     await page.keyboard.press('Tab');
@@ -142,7 +182,9 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
   test(`${slug}: 320px narrow and short screens remain usable`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 680 });
     await page.goto(`/${slug}/`);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
     await page.screenshot({ path: `test-results/${slug}-narrow.png`, fullPage: true });
     await page.setViewportSize({ width: 320, height: 240 });
     await page.goto(`/${slug}/?preview=completion`);
@@ -172,7 +214,9 @@ test('complete all 20 unicode answers and restore final focus and progress', asy
 test('storage failure and absent runtime Segmenter do not prevent play', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(Intl, 'Segmenter', { value: undefined });
-    Storage.prototype.setItem = () => { throw new DOMException('Storage blocked', 'SecurityError'); };
+    Storage.prototype.setItem = () => {
+      throw new DOMException('Storage blocked', 'SecurityError');
+    };
   });
   await page.goto('/unicode-plus-one/');
   await page.locator('#answer-1').fill('九九歌');
@@ -184,29 +228,40 @@ test('storage failure and absent runtime Segmenter do not prevent play', async (
 for (const slug of ['', 'missing-abbreviations/', 'unicode-plus-one/']) {
   test(`${slug || 'home'}: automated WCAG A/AA checks`, async ({ page }) => {
     await page.goto('/' + slug);
-    const results = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']).analyze();
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
     expect(results.violations).toEqual([]);
     if (slug) {
       const first = page.locator('.card').first();
       await first.locator('input').fill('错误答案');
       await first.locator('input').press('Enter');
       // Inspect the flash at its strongest tint instead of racing its duration.
-      await first.evaluate(card => card.getAnimations().forEach(animation => {
-        animation.pause();
-        animation.currentTime = 0;
-      }));
+      await first.evaluate((card) =>
+        card.getAnimations().forEach((animation) => {
+          animation.pause();
+          animation.currentTime = 0;
+        }),
+      );
       await expect(first.locator('.feedback')).toBeVisible();
       await expect(first.locator('.feedback')).toContainText('答案不正确');
-      const errorResults = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']).analyze();
+      const errorResults = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
       expect(errorResults.violations).toEqual([]);
     }
   });
 }
 
-test('local static routes serve real assets and return 404 for missing files', async ({ page, request }) => {
+test('local static routes serve real assets and return 404 for missing files', async ({
+  page,
+  request,
+}) => {
   const errors: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
-  page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('response', (response) => {
+    if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
+  });
   for (const slug of ['', 'missing-abbreviations/', 'unicode-plus-one/']) {
     await page.goto('/' + slug);
     if (slug) await expect(page.locator('.card').first()).toBeVisible();
@@ -216,9 +271,20 @@ test('local static routes serve real assets and return 404 for missing files', a
   for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     const response = await request.get(`/${slug}/index.html`);
     expect(response.status()).toBe(200);
-    expect(await response.text()).toContain(`rel="canonical" href="https://pqr.pkupuzzle.art/${slug}/"`);
+    expect(await response.text()).toContain(
+      `rel="canonical" href="https://pqr.pkupuzzle.art/${slug}/"`,
+    );
   }
-  for (const path of ['/missing-abbreviations/missing.js', '/unicode-plus-one/missing.png', '/unknown-page/', '/sites/missing-abbreviations/index.html', '/sites/unicode-plus-one/index.html', '/src/home/index.html', '/src/sites/missing-abbreviations/index.html', '/src/sites/unicode-plus-one/index.html']) {
+  for (const path of [
+    '/missing-abbreviations/missing.js',
+    '/unicode-plus-one/missing.png',
+    '/unknown-page/',
+    '/sites/missing-abbreviations/index.html',
+    '/sites/unicode-plus-one/index.html',
+    '/src/home/index.html',
+    '/src/sites/missing-abbreviations/index.html',
+    '/src/sites/unicode-plus-one/index.html',
+  ]) {
     expect((await request.get(path)).status()).toBe(404);
   }
 });
@@ -230,9 +296,9 @@ test('Base UI dialog works without native dialog methods', async ({ page }) => {
   });
   await page.goto('/unicode-plus-one/?preview=completion');
   await expect(page.getByRole('dialog')).toBeVisible();
-  await page.getByRole('button', {name:'继续浏览'}).focus();
+  await page.getByRole('button', { name: '继续浏览' }).focus();
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('button', {name:'关闭',exact:true})).toBeFocused();
+  await expect(page.getByRole('button', { name: '关闭', exact: true })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await expect(page.locator('#answer-1')).toBeFocused();
