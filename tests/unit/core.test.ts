@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { acceptsAnswer, normalizeAnswer } from '../../src/lib/answers';
 import { decodeProgress, encodeProgress, progressKey } from '../../src/lib/progress';
 import { validatePuzzles } from '../../scripts/validate.mjs';
-import abbreviations from '../../sites/missing-abbreviations/puzzles.json' with { type: 'json' };
-import unicode from '../../sites/unicode-plus-one/puzzles.json' with { type: 'json' };
+import abbreviations from '../../src/sites/missing-abbreviations/puzzles.json' with { type: 'json' };
+import unicode from '../../src/sites/unicode-plus-one/puzzles.json' with { type: 'json' };
 import preparedUnicode from '../../src/generated/unicode-plus-one.json' with { type: 'json' };
 
 describe('answer policy', () => {

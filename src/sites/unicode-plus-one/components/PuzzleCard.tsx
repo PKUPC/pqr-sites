@@ -1,14 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { PuzzleCard as AnswerCard, type AnswerResult } from '../../src/components/PuzzleCard';
-import { Note } from '../../src/components/Note';
-import type { QuizCardProps } from '../../src/hooks/useQuiz';
-import type { UnicodePuzzle } from './types';
+import { Bulb } from './Bulb';
+import { PuzzleCard as AnswerCard, type AnswerResult } from '../../../components/PuzzleCard';
+import { Note } from '../../../components/Note';
+import type { QuizCardProps } from '../../../hooks/useQuiz';
+import type { UnicodePuzzle } from '../types';
 import { Question } from './Question';
 import { Difficulty } from './Difficulty';
-
-function Bulb() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6m-5 3h4m-5-6c0-1.6-1-2.3-1.8-3.2A6 6 0 1 1 17 11.6c-.9 1.1-2 1.8-2 3.4" /></svg>;
-}
 
 export function PuzzleCard({ puzzle, index, solved, hidden, onSolve }: QuizCardProps<UnicodePuzzle>) {
   const card = useRef<HTMLElement>(null);

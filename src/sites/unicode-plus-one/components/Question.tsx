@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { UnicodePuzzle } from './types';
+import type { UnicodePuzzle } from '../types';
 
 export function Question({ puzzle, solved }: { puzzle: UnicodePuzzle; solved: boolean }) {
   const [selected, setSelected] = useState(false);

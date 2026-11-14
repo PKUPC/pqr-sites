@@ -55,16 +55,16 @@ npm run preview
 
 ## 内容与代码组织
 
-- `sites/catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
-- `sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
-- `sites/<site>/App.tsx`、`PuzzleCard.tsx`、`Completion.tsx`：每期自己的页面框架、题目卡片和完成弹窗视图；特殊题面、状态和类型也放在该站点下。
-- `sites/<site>/Introduction.tsx`、`style.css`、`accessibility.css`：每期独立介绍、署名、视觉样式与无障碍样式。
-- `sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `sites/`。
+- `src/sites/catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
+- `src/sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
+- `src/sites/<site>/App.tsx`、`components/PuzzleCard.tsx`、`components/Completion.tsx`：每期自己的页面框架、题目卡片和完成弹窗视图；特殊题面、状态和类型也放在该站点下。
+- `src/sites/<site>/components/Introduction.tsx`、`style.css`、`accessibility.css`：每期独立介绍、署名、视觉样式与无障碍样式。
+- `src/sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `src/sites/`。
 - `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 提供模态与焦点控制；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
-- 公共组件的内部子组件放在自身目录下的 `components/<PascalCase>/index.tsx`，内部 hook 放在自身的 `hooks/` 下；按需创建，不建立空目录。
+- 公共组件和站点页面的子组件放在自身目录下的 `components/`；单文件子组件直接用 `PascalCase.tsx`，需要配套文件时再建 PascalCase 目录并以 `index.tsx` 为入口。组件专用 hook 直接与所属组件入口同层，不另建 `hooks/`。
 - `src/hooks/`：独立通用 hook，`useQuiz` 提供进度/筛选状态，`useProgress` 管理浏览器进度。
 - `src/lib/`、`src/types/`、`src/styles/`：通用判题与存储工具、数据类型、无障碍工具样式。
-- `src/home/`：统一入口首页，不加载各期完整题库。
+- `src/home/`：统一入口首页，包含 HTML 入口，不加载各期完整题库；构建后输出根目录 `index.html`。
 - `scripts/prepare.mjs`：通用题库准备入口，负责读取、校验、调用可选转换器和输出生成数据。
 - `scripts/transformer/<site-id>.mjs`：各期专用的构建转换器。unicode+1 的字素分格与原问句计算位于 `unicode-plus-one.mjs`；开发时修改题库或转换器会重新生成数据。
 - `public/<site>/`：明确放入构建结果的图标和分享图，勿存放文档、凭据或工作记录。
@@ -79,6 +79,6 @@ unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmen
 
 ## 为特殊题型添加转换器
 
-普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `sites/catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
+普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `src/sites/catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
 
 转换器只在本地开发和构建时运行，不修改原题库文件，也不处理服务器操作。已配置转换器的导入或执行失败会中止准备，不会悄悄退回原始数据。

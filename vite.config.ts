@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import catalog from './sites/catalog.json' with { type: 'json' };
+import catalog from './src/sites/catalog.json' with { type: 'json' };
 
 const escape = (value: string) => value.replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -18,16 +18,20 @@ export default defineConfig({
         const site = catalog.find(site => [
           `/${site.id}`, `/${site.id}/`, `/${site.id}/index.html`,
         ].includes(url.pathname));
+        if (['/', '/index.html'].includes(url.pathname)) {
+          request.url = `/src/home/index.html${url.search}`;
+          return next();
+        }
         if (!site) return next();
         if (url.pathname === `/${site.id}`) {
           response.writeHead(308, { Location: `/${site.id}/${url.search}` });
           response.end();
           return;
         }
-        request.url = `/sites/${site.id}/index.html${url.search}`;
+        request.url = `/src/sites/${site.id}/index.html${url.search}`;
         next();
       });
-      const sourceFiles = catalog.map(site => resolve(import.meta.dirname, 'sites', site.id, 'puzzles.json'));
+      const sourceFiles = catalog.map(site => resolve(import.meta.dirname, 'src', 'sites', site.id, 'puzzles.json'));
       const transformerDirectory = resolve(import.meta.dirname, 'scripts', 'transformer');
       server.watcher.add([...sourceFiles, transformerDirectory]);
       const refreshData = (file: string) => {
@@ -45,9 +49,11 @@ export default defineConfig({
     generateBundle: {
       order: 'post',
       handler(_options, bundle) {
-        for (const site of catalog) {
-          const source = `sites/${site.id}/index.html`;
-          const destination = `${site.id}/index.html`;
+        const entries = [
+          { source: 'src/home/index.html', destination: 'index.html' },
+          ...catalog.map(site => ({ source: `src/sites/${site.id}/index.html`, destination: `${site.id}/index.html` })),
+        ];
+        for (const { source, destination } of entries) {
           const page = bundle[source];
           if (!page || page.type !== 'asset') this.error(`Missing HTML entry: ${source}`);
           if (bundle[destination]) this.error(`Duplicate HTML output: ${destination}`);
@@ -59,7 +65,7 @@ export default defineConfig({
     transformIndexHtml: {
       order: 'pre',
       handler(html, ctx) {
-        const site = catalog.find(site => ctx.filename === resolve(import.meta.dirname, 'sites', site.id, 'index.html'));
+        const site = catalog.find(site => ctx.filename === resolve(import.meta.dirname, 'src', 'sites', site.id, 'index.html'));
         const title = site ? `${site.title}｜P&KU 群聊集萃 · 第 ${site.edition} 期` : 'PQR｜P&KU Quiz Research';
         const description = site?.description ?? '欢迎来到 PQR！P&KU 群每周五晚 22:00 的 Quiz/微型谜题企划。浏览各期线上存档，随时开始解谜。';
         const url = `https://pqr.pkupuzzle.art/${site ? `${site.id}/` : ''}`;
@@ -100,8 +106,8 @@ export default defineConfig({
     sourcemap: false,
     rolldownOptions: {
       input: {
-        home: resolve(import.meta.dirname, 'index.html'),
-        ...Object.fromEntries(catalog.map(site => [site.id, resolve(import.meta.dirname, 'sites', site.id, 'index.html')])),
+        home: resolve(import.meta.dirname, 'src', 'home', 'index.html'),
+        ...Object.fromEntries(catalog.map(site => [site.id, resolve(import.meta.dirname, 'src', 'sites', site.id, 'index.html')])),
       },
     },
   },

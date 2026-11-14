@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import unicode from '../../sites/unicode-plus-one/puzzles.json' with { type: 'json' };
+import unicode from '../../src/sites/unicode-plus-one/puzzles.json' with { type: 'json' };
 
 test('home exposes both real document routes and metadata without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
@@ -181,7 +181,7 @@ test('local static routes serve real assets and return 404 for missing files', a
     expect(response.status()).toBe(200);
     expect(await response.text()).toContain(`rel="canonical" href="https://pqr.pkupuzzle.art/${slug}/"`);
   }
-  for (const path of ['/missing-abbreviations/missing.js', '/unicode-plus-one/missing.png', '/unknown-page/', '/sites/missing-abbreviations/index.html', '/sites/unicode-plus-one/index.html']) {
+  for (const path of ['/missing-abbreviations/missing.js', '/unicode-plus-one/missing.png', '/unknown-page/', '/sites/missing-abbreviations/index.html', '/sites/unicode-plus-one/index.html', '/src/home/index.html', '/src/sites/missing-abbreviations/index.html', '/src/sites/unicode-plus-one/index.html']) {
     expect((await request.get(path)).status()).toBe(404);
   }
 });
