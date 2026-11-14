@@ -1,4 +1,4 @@
-import { focusableSelector, useDialog } from './hooks/useDialog';
+import { focusableSelector, useDialog } from './useDialog';
 import type { DialogProps } from './types';
 
 /** Accessible modal behavior; the caller supplies the content, styles and focus targets. */

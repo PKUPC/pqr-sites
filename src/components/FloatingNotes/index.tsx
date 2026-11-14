@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { NoteContext } from './hooks/useFloatingNotes';
-import { useFloatingNoteController } from './hooks/useFloatingNoteController';
+import { NoteContext } from './useFloatingNotes';
+import { useFloatingNoteController } from './useFloatingNoteController';
 
-export { useFloatingNotes } from './hooks/useFloatingNotes';
+export { useFloatingNotes } from './useFloatingNotes';
 
 export function FloatingNotes({ children }: { children: ReactNode }) {
   const controller = useFloatingNoteController();

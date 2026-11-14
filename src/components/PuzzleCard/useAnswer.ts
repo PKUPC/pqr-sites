@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEventHandler, type InputHTMLAttributes, type RefObject } from 'react';
-import { acceptsAnswer, normalizeAnswer, type AnswerPolicy } from '../../../lib/answers';
+import { acceptsAnswer, normalizeAnswer, type AnswerPolicy } from '../../lib/answers';
 
 export type AnswerResult = 'empty' | 'incorrect' | 'correct';
 
