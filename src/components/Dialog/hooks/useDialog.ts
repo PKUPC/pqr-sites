@@ -1,23 +1,9 @@
-import { useCallback, useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import type { DialogProps } from '../types';
 
-const focusableSelector = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+export const focusableSelector = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/** Accessible modal behavior; the caller supplies the content, styles and focus targets. */
-export function Dialog({ open, onDismiss, backgroundRef, initialFocus, returnFocus, className,
-  openClassName, fallbackClassName, closeOnSurfaceClick = false, labelledBy, describedBy, children }: {
-  open: boolean;
-  onDismiss: () => void;
-  backgroundRef: RefObject<HTMLElement | null>;
-  initialFocus?: () => HTMLElement | null;
-  returnFocus?: () => HTMLElement | null;
-  className?: string;
-  openClassName?: string;
-  fallbackClassName?: string;
-  closeOnSurfaceClick?: boolean;
-  labelledBy: string;
-  describedBy?: string;
-  children: (controls: { close: () => void }) => ReactNode;
-}) {
+export function useDialog({ open, onDismiss, backgroundRef, initialFocus, returnFocus, openClassName, fallbackClassName }: DialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const fallbackBackground = useRef<{ element: HTMLElement; inert: boolean; ariaHidden: string | null } | null>(null);
   const releaseBackground = useCallback(() => {
@@ -73,21 +59,5 @@ export function Dialog({ open, onDismiss, backgroundRef, initialFocus, returnFoc
     (initialFocus?.() ?? element.querySelector<HTMLElement>(focusableSelector))?.focus();
   }, [open, backgroundRef, initialFocus, openClassName, fallbackClassName, releaseBackground]);
 
-  return <dialog ref={dialog} className={className} aria-modal="true" aria-labelledby={labelledBy} aria-describedby={describedBy}
-    onCancel={event => { event.preventDefault(); close(); }} onClose={dismissed}
-    onKeyDown={event => {
-      if (event.key === 'Escape') { event.preventDefault(); close(); }
-      if (event.key !== 'Tab') return;
-      const elements = [...event.currentTarget.querySelectorAll<HTMLElement>(focusableSelector)].filter(element => element.getClientRects().length > 0);
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-      if (!first) { event.preventDefault(); return; }
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    }}
-    onClick={event => {
-      if (event.target !== event.currentTarget) return;
-      const box = event.currentTarget.getBoundingClientRect();
-      if (closeOnSurfaceClick || event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close();
-    }}>{children({ close })}</dialog>;
+  return { dialog, close, dismissed };
 }

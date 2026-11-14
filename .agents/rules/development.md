@@ -38,6 +38,8 @@
 
 ## 共享能力与站点边界
 
-- `src/shared/` MUST 保持与具体站点无关，不导入 `sites/`、生成题库或活动目录，不维护具体活动 ID 的分支或类型联合。
+- `src/components/`、`src/hooks/`、`src/lib/`、`src/types/` 和 `src/styles/` MUST 保持与具体站点无关，不导入 `sites/`、生成题库或活动目录，不维护具体活动 ID 的分支或类型联合。
 - 每期的 DOM 结构、主题样式、题面渲染、特殊字段及专属交互 MUST 放在对应的 `sites/<site>/` 下，不通过检查题库特殊字段隐式选择某个站点视图。
 - 共享层通过 hook、props、children/render prop 或 slot 提供通用状态与行为；站点负责组合界面。不以新增 `isXxx` 题型开关替代边界划分。
+
+- 公共组件 MUST 放在 `src/components/<PascalCase>/`，入口为 `index.tsx`。组件内部子组件放在自身的 `components/<PascalCase>/index.tsx`，内部 hook 放在自身的 `hooks/`；跨组件的独立通用 hook 放在 `src/hooks/`，工具、类型与通用样式分别放在 `src/lib/`、`src/types/` 和 `src/styles/`。按需建立目录，不创建空结构。

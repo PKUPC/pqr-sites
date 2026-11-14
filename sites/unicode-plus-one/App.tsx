@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import catalog from '../catalog.json' with { type: 'json' };
-import { FloatingNotes } from '../../src/shared/FloatingNote';
-import { useQuiz } from '../../src/shared/useQuiz';
+import { FloatingNotes } from '../../src/components/FloatingNotes';
+import { useQuiz } from '../../src/hooks/useQuiz';
 import type { UnicodePuzzle } from './types';
 import { Introduction } from './Introduction';
 import { PuzzleCard } from './PuzzleCard';

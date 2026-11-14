@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { decodeProgress, encodeProgress, progressKey } from './progress';
-import type { Puzzle } from './types';
+import { decodeProgress, encodeProgress, progressKey } from '../lib/progress';
+import type { Puzzle } from '../types/puzzle';
 
 export function useProgress(id: string, puzzles: Puzzle[], preview: boolean) {
   const [snapshot, setSnapshot] = useState(() => {

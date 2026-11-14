@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it } from 'vitest';
-import { PuzzleCard } from '../../src/shared/PuzzleCard';
-import { useQuiz } from '../../src/shared/useQuiz';
+import { PuzzleCard } from '../../src/components/PuzzleCard';
+import { useQuiz } from '../../src/hooks/useQuiz';
 
 it('lets a caller supply the complete answer UI without a shared card wrapper', () => {
   const html = renderToStaticMarkup(

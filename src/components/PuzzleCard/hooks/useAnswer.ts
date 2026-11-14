@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEventHandler, type InputHTMLAttributes, type ReactNode, type RefObject } from 'react';
-import { acceptsAnswer, normalizeAnswer, type AnswerPolicy } from './answers';
+import { useEffect, useRef, useState, type FormEventHandler, type InputHTMLAttributes, type RefObject } from 'react';
+import { acceptsAnswer, normalizeAnswer, type AnswerPolicy } from '../../../lib/answers';
 
 export type AnswerResult = 'empty' | 'incorrect' | 'correct';
 
@@ -12,8 +12,7 @@ export interface AnswerState {
   onSubmit: FormEventHandler<HTMLFormElement>;
 }
 
-/** Answer state and events only; the caller owns all markup and presentation. */
-export function PuzzleCard({ id, answers, solved, onSolve, lockWhenSolved = false, policy, onAttempt, children }: {
+export function useAnswer({ id, answers, solved, onSolve, lockWhenSolved = false, policy, onAttempt }: {
   id: number;
   answers: string | string[];
   solved: boolean;
@@ -21,8 +20,7 @@ export function PuzzleCard({ id, answers, solved, onSolve, lockWhenSolved = fals
   lockWhenSolved?: boolean;
   policy?: AnswerPolicy;
   onAttempt?: (result: AnswerResult) => void;
-  children: (state: AnswerState) => ReactNode;
-}) {
+}): AnswerState {
   const [value, setValue] = useState('');
   const [error, setError] = useState<AnswerState['error']>(null);
   const [recentIncorrect, setRecentIncorrect] = useState(false);
@@ -55,7 +53,7 @@ export function PuzzleCard({ id, answers, solved, onSolve, lockWhenSolved = fals
     onSolve(id, inputRef.current);
   };
 
-  return children({
+  return {
     error, recentIncorrect, referenceAnswer: [answers].flat()[0], inputRef, onSubmit,
     inputProps: {
       value,
@@ -64,5 +62,5 @@ export function PuzzleCard({ id, answers, solved, onSolve, lockWhenSolved = fals
       onCompositionEnd: () => { composing.current = false; },
       onChange: event => { setValue(event.target.value); setError(null); },
     },
-  });
+  };
 }

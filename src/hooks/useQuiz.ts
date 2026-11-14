@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useProgress } from './useProgress';
-import type { Puzzle } from './types';
+import type { Puzzle } from '../types/puzzle';
 
 export interface QuizCardProps<T extends Puzzle> {
   puzzle: T;

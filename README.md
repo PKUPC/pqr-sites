@@ -60,7 +60,10 @@ npm run preview
 - `sites/<site>/App.tsx`、`PuzzleCard.tsx`、`Completion.tsx`：每期自己的页面框架、题目卡片和完成弹窗视图；特殊题面、状态和类型也放在该站点下。
 - `sites/<site>/Introduction.tsx`、`style.css`、`accessibility.css`：每期独立介绍、署名、视觉样式与无障碍样式。
 - `sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `sites/`。
-- `src/shared/`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`useQuiz` 提供进度/筛选状态，`Dialog` 提供模态与焦点控制；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
+- `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 提供模态与焦点控制；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
+- 公共组件的内部子组件放在自身目录下的 `components/<PascalCase>/index.tsx`，内部 hook 放在自身的 `hooks/` 下；按需创建，不建立空目录。
+- `src/hooks/`：独立通用 hook，`useQuiz` 提供进度/筛选状态，`useProgress` 管理浏览器进度。
+- `src/lib/`、`src/types/`、`src/styles/`：通用判题与存储工具、数据类型、无障碍工具样式。
 - `src/home/`：统一入口首页，不加载各期完整题库。
 - `scripts/prepare.mjs`：通用题库准备入口，负责读取、校验、调用可选转换器和输出生成数据。
 - `scripts/transformer/<site-id>.mjs`：各期专用的构建转换器。unicode+1 的字素分格与原问句计算位于 `unicode-plus-one.mjs`；开发时修改题库或转换器会重新生成数据。

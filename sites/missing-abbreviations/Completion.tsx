@@ -1,5 +1,5 @@
 import { useRef, useState, type RefObject } from 'react';
-import { Dialog } from '../../src/shared/Dialog';
+import { Dialog } from '../../src/components/Dialog';
 
 export function Completion({ complete, title, edition, backgroundRef, returnFocus }: {
   complete: boolean; title: string; edition: number;

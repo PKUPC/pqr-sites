@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { PuzzleCard as AnswerCard, type AnswerResult } from '../../src/shared/PuzzleCard';
-import { Note } from '../../src/shared/FloatingNote';
-import type { QuizCardProps } from '../../src/shared/useQuiz';
+import { PuzzleCard as AnswerCard, type AnswerResult } from '../../src/components/PuzzleCard';
+import { Note } from '../../src/components/Note';
+import type { QuizCardProps } from '../../src/hooks/useQuiz';
 import type { UnicodePuzzle } from './types';
 import { Question } from './Question';
 import { Difficulty } from './Difficulty';
