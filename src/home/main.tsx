@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import catalog from '../../catalog.json' with { type: 'json' };
+import catalog from '../../sites/catalog.json' with { type: 'json' };
 import './style.css';
 
 function Home() {

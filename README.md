@@ -55,7 +55,7 @@ npm run preview
 
 ## 内容与代码组织
 
-- `catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
+- `sites/catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
 - `sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
 - `sites/<site>/Introduction.tsx`、`style.css`：每期独立介绍、署名与视觉样式。
 - `sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `sites/`。
@@ -75,6 +75,6 @@ unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmen
 
 ## 为特殊题型添加转换器
 
-普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
+普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `sites/catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
 
 转换器只在本地开发和构建时运行，不修改原题库文件，也不处理服务器操作。已配置转换器的导入或执行失败会中止准备，不会悄悄退回原始数据。

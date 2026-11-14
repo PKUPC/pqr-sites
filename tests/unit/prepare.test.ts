@@ -10,7 +10,7 @@ function fixture(run: (root: string) => void) {
     mkdirSync(join(root, 'scripts/transformer'), { recursive: true });
     mkdirSync(join(root, 'sites/example'), { recursive: true });
     for (const name of ['prepare.mjs', 'validate.mjs']) copyFileSync(new URL(`../../scripts/${name}`, import.meta.url), join(root, 'scripts', name));
-    writeFileSync(join(root, 'catalog.json'), JSON.stringify([{ id: 'example', count: 1 }]));
+    writeFileSync(join(root, 'sites/catalog.json'), JSON.stringify([{ id: 'example', count: 1 }]));
     writeFileSync(join(root, 'sites/example/puzzles.json'), JSON.stringify([{ id: 1, question: '问', answers: '答' }]));
     run(root);
   } finally { rmSync(root, { recursive: true, force: true }); }

@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 
 const root = new URL('../dist/', import.meta.url);
-const catalog = JSON.parse(await readFile(new URL('../catalog.json', import.meta.url), 'utf8'));
+const catalog = JSON.parse(await readFile(new URL('../sites/catalog.json', import.meta.url), 'utf8'));
 const entries = new Set(['index.html', ...catalog.map(site => `${site.id}/index.html`)]);
 const allowed = new Set(['.html', '.js', '.css', '.png', '.ico', '.svg']);
 async function check(directory) {

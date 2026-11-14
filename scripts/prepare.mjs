@@ -2,7 +2,7 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { validatePuzzles } from './validate.mjs';
 
 const root = new URL('../', import.meta.url);
-const catalog = JSON.parse(await readFile(new URL('catalog.json', root), 'utf8'));
+const catalog = JSON.parse(await readFile(new URL('sites/catalog.json', root), 'utf8'));
 const transformerDirectory = new URL('./transformer/', import.meta.url);
 const transformerFiles = new Set(await readdir(transformerDirectory));
 await mkdir(new URL('src/generated/', root), { recursive: true });

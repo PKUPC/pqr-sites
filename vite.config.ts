@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import catalog from './catalog.json' with { type: 'json' };
+import catalog from './sites/catalog.json' with { type: 'json' };
 
 const escape = (value: string) => value.replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

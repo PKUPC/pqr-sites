@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
-import catalog from '../../catalog.json' with { type: 'json' };
+import catalog from '../../sites/catalog.json' with { type: 'json' };
 import { Completion } from './Completion';
 import { FloatingNotes } from './FloatingNote';
 import { Difficulty, PuzzleCard } from './PuzzleCard';
