@@ -57,10 +57,11 @@ npm run preview
 
 - `src/sites/catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
 - `src/sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
-- `src/sites/<site>/App.tsx`、`components/PuzzleCard.tsx`、`components/Completion.tsx`：每期自己的页面框架、题目卡片和完成弹窗视图；特殊题面、状态和类型也放在该站点下。
+- `src/sites/<site>/App.tsx`、`components/PuzzleCard.tsx`：每期自己的页面框架和题目卡片；特殊题面、状态和类型也放在该站点下。
 - `src/sites/<site>/components/Introduction.tsx`、`style.css`、`accessibility.css`：每期独立介绍、署名、视觉样式与无障碍样式。
 - `src/sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `src/sites/`。
-- `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 基于 Base UI 提供模态与焦点控制，`Note` 基于 Base UI Popover 提供提示气泡；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
+- `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 基于 Base UI 提供模态与焦点控制，`Note` 基于 Base UI Popover 提供提示气泡；站点专属 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
+- `src/components/BulbIcon/`：共用内联 SVG 灯泡，使用 `currentColor` 继承按钮颜色。`src/components/Completion/`：共用 PQR 完成视图与关闭状态，通过参数传入活动名称、期数及焦点恢复目标；站点维护全部样式，继续按钮仅使用 `.completion-close`。
 - 公共组件和站点页面的子组件放在自身目录下的 `components/`；单文件子组件直接用 `PascalCase.tsx`，需要配套文件时再建 PascalCase 目录并以 `index.tsx` 为入口。组件专用 hook 直接与所属组件入口同层，不另建 `hooks/`。
 - `src/hooks/`：独立通用 hook，`useQuiz` 提供进度/筛选状态，`useProgress` 管理浏览器进度。
 - `src/lib/`、`src/types/`、`src/styles/`：通用判题与存储工具、数据类型、无障碍工具样式。

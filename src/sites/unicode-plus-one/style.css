@@ -505,7 +505,7 @@ input::placeholder { color: var(--muted); }
 
 button { cursor: pointer; }
 
-.submit {
+.submit, .completion-close {
   min-inline-size: 5em;
   padding: 0 .875em;
   border: 1px solid var(--accent-dark);
@@ -517,7 +517,8 @@ button { cursor: pointer; }
   white-space: nowrap;
 }
 
-.submit:enabled:hover, .submit:enabled:active { background: var(--accent-dark); }
+.submit:enabled:hover, .submit:enabled:active,
+.completion-close:enabled:hover, .completion-close:enabled:active { background: var(--accent-dark); }
 
 .submit:disabled {
   border-color: #d9b7ae;

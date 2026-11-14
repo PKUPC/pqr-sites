@@ -39,7 +39,7 @@
 ## 共享能力与站点边界
 
 - `src/components/`、`src/hooks/`、`src/lib/`、`src/types/` 和 `src/styles/` MUST 保持与具体站点无关，不导入 `src/sites/`、生成题库或活动目录，不维护具体活动 ID 的分支或类型联合。
-- 每期的 DOM 结构、主题样式、题面渲染、特殊字段及专属交互 MUST 放在对应的 `src/sites/<site>/` 下，不通过检查题库特殊字段隐式选择某个站点视图。
+- 每期专属的 DOM 结构、主题样式、题面渲染、特殊字段及专属交互 MUST 放在对应的 `src/sites/<site>/` 下，不通过检查题库特殊字段隐式选择某个站点视图。
 - 共享层通过 hook、props、children/render prop 或 slot 提供通用状态与行为；站点负责组合界面。不以新增 `isXxx` 题型开关替代边界划分。
 
 - 网页源码 MUST 放在 `src/`，每期页面位于 `src/sites/<site>/`，首页位于 `src/home/`。`public/` 只存放直接复制到产物的静态资源；构建脚本、配置和测试仍使用各自的项目级目录。

@@ -5,7 +5,7 @@ import { useQuiz } from '../../hooks/useQuiz';
 import type { Puzzle } from '../../types/puzzle';
 import { Introduction } from './components/Introduction';
 import { PuzzleCard } from './components/PuzzleCard';
-import { Completion } from './components/Completion';
+import { Completion } from '../../components/Completion';
 
 
 const site = catalog.find(site => site.id === 'missing-abbreviations')!;
@@ -39,6 +39,6 @@ export function App({ puzzles }: { puzzles: Puzzle[] }) {
         <p className="archive-navigation"><a href="/">← 返回 PQR 存档首页</a></p>
       </main>
     </div>
-    <Completion complete={quiz.complete} title={site.title} edition={site.edition} backgroundRef={shell} returnFocus={quiz.returnFocus} />
+    <Completion complete={quiz.complete} title={site.title} edition={site.edition} returnFocus={() => quiz.returnFocus.current ?? shell.current?.querySelector<HTMLInputElement>('.card:not([hidden]) input') ?? null} />
   </FloatingNotes>;
 }
