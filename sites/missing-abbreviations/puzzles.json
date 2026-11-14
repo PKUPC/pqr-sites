@@ -1,0 +1,844 @@
+[
+  {
+    "id": 1,
+    "question": "林匹克动",
+    "author": "Winfrid",
+    "answers": "奥运会",
+    "hint": "○林匹克○○会",
+    "difficulty": 1,
+    "tags": {
+      "例题": "这是一道例题"
+    }
+  },
+  {
+    "id": 2,
+    "question": "普通等学校招生全国统一试",
+    "author": "小吉",
+    "answers": "高考",
+    "hint": "普通○等学校招生全国统一○试",
+    "difficulty": 1,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 3,
+    "question": "克萨斯",
+    "author": "落叶子",
+    "answers": "德州",
+    "hint": "○克萨斯○",
+    "difficulty": 1,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 4,
+    "question": "大利",
+    "author": "火冬",
+    "answers": "意面",
+    "hint": "○大利○",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 5,
+    "question": "而没有什么用",
+    "author": "Seleclipse",
+    "answers": "然并卵",
+    "hint": "○而○没有什么○用；网络流行语",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 6,
+    "question": "政码",
+    "author": "Winfrid",
+    "answers": "邮编",
+    "hint": "○政○码",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 7,
+    "question": "京国际电",
+    "author": "Winfrid",
+    "answers": "北影节",
+    "hint": "○京国际电○○",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 8,
+    "question": "中电台",
+    "author": "Winfrid",
+    "answers": "央视",
+    "hint": "中○电○台",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 9,
+    "question": "通银",
+    "author": "Winfrid",
+    "answers": "交行",
+    "hint": "○通银○",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 10,
+    "question": "日争",
+    "author": "Winfrid",
+    "answers": "抗战",
+    "hint": "○日○争",
+    "difficulty": 2,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 11,
+    "question": "成合",
+    "author": "proton",
+    "answers": "加聚反应",
+    "hint": "○成○合○○；化学名词",
+    "difficulty": 3,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 12,
+    "question": "科科考试",
+    "author": "Winfrid",
+    "answers": "专升本",
+    "hint": "○科○○科考试",
+    "difficulty": 3,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 13,
+    "question": "大民",
+    "author": "群星",
+    "answers": "韩国",
+    "hint": "大○民○",
+    "difficulty": 3,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 14,
+    "question": "落天下",
+    "author": "proton",
+    "answers": "一叶知秋",
+    "hint": "○○落○天下○",
+    "difficulty": 3,
+    "tags": {
+      "精选": "这是一道推荐尝试的谜题"
+    }
+  },
+  {
+    "id": 15,
+    "question": "【我的孩】",
+    "author": "布莱斯恩",
+    "answers": "推子",
+    "hint": "【我○的孩○】；动漫作品",
+    "difficulty": 1
+  },
+  {
+    "id": 16,
+    "question": "四学",
+    "author": "Winfrid",
+    "answers": "川大",
+    "hint": "四○○学",
+    "difficulty": 3
+  },
+  {
+    "id": 17,
+    "question": "赋得古原送别",
+    "author": "冰墨",
+    "answers": "草",
+    "hint": "赋得古原○送别",
+    "difficulty": 1
+  },
+  {
+    "id": 18,
+    "question": "州无州",
+    "author": "Winfrid",
+    "answers": "苏锡常",
+    "hint": "○州无○○州",
+    "difficulty": 3
+  },
+  {
+    "id": 19,
+    "question": "次作",
+    "author": "Winfrid",
+    "answers": "二创",
+    "hint": "○次○作；网络用语",
+    "difficulty": 3
+  },
+  {
+    "id": 20,
+    "question": "票场",
+    "author": "Seleclipse",
+    "answers": "股市",
+    "hint": "○票○场",
+    "difficulty": 3
+  },
+  {
+    "id": 21,
+    "question": "球大",
+    "author": "Winfrid",
+    "answers": "星战",
+    "hint": "○球大○；电影作品",
+    "difficulty": 3
+  },
+  {
+    "id": 22,
+    "question": "境护",
+    "author": "小绿草",
+    "answers": "环保",
+    "hint": "○境○护",
+    "difficulty": 2
+  },
+  {
+    "id": 23,
+    "question": "间学家",
+    "author": "proton",
+    "answers": "民科",
+    "hint": "○间○学家；网络用语",
+    "difficulty": 2
+  },
+  {
+    "id": 24,
+    "question": "着也中",
+    "author": "D3D4",
+    "answers": "躺枪",
+    "hint": "○着也中○；网络流行语",
+    "difficulty": 3
+  },
+  {
+    "id": 25,
+    "question": "门索",
+    "author": "Winfrid",
+    "answers": "热搜",
+    "hint": "○门○索；网络用语，其全称已经完全被缩写替代",
+    "difficulty": 4
+  },
+  {
+    "id": 26,
+    "question": "共通",
+    "author": "proton",
+    "answers": "公交",
+    "hint": "○共○通",
+    "difficulty": 4
+  },
+  {
+    "id": 27,
+    "question": "のは。",
+    "author": "Winfrid",
+    "answers": "君名",
+    "hint": "○の○は。；动漫",
+    "difficulty": 3
+  },
+  {
+    "id": 28,
+    "question": "发点论",
+    "author": "Winfrid",
+    "answers": "转赞评",
+    "hint": "○发点○○论",
+    "difficulty": 3
+  },
+  {
+    "id": 29,
+    "question": "学术",
+    "author": "Seleclipse",
+    "answers": "科技",
+    "hint": "○学○术",
+    "difficulty": 3
+  },
+  {
+    "id": 30,
+    "question": "ic",
+    "author": "落叶子",
+    "answers": "Zn",
+    "hint": "○i○c",
+    "difficulty": 5
+  },
+  {
+    "id": 31,
+    "question": "国长",
+    "author": "Winfrid",
+    "answers": "美队",
+    "hint": "○国○长；电影",
+    "difficulty": 3
+  },
+  {
+    "id": 32,
+    "question": "笑川",
+    "author": "Leafy",
+    "answers": "孙吧",
+    "hint": "○笑川○；网络用语",
+    "difficulty": 2
+  },
+  {
+    "id": 33,
+    "question": "躲幕",
+    "author": "Ruby",
+    "answers": "避弹",
+    "hint": "躲○○幕",
+    "difficulty": 2
+  },
+  {
+    "id": 34,
+    "question": "学建",
+    "author": "祝融",
+    "answers": "数模",
+    "hint": "○学建○",
+    "difficulty": 2
+  },
+  {
+    "id": 35,
+    "question": "界技能大",
+    "author": "D3D4",
+    "answers": "世赛",
+    "hint": "○界技能大○",
+    "difficulty": 1
+  },
+  {
+    "id": 36,
+    "question": "班牙",
+    "author": "想放假の猫猫战士",
+    "answers": "西语",
+    "hint": "○班牙○",
+    "difficulty": 2
+  },
+  {
+    "id": 37,
+    "question": "学历学学",
+    "author": "proton",
+    "answers": "文史哲",
+    "hint": "○学历○学○学",
+    "difficulty": 3
+  },
+  {
+    "id": 38,
+    "question": "中务员",
+    "author": "小吉",
+    "answers": "空乘",
+    "hint": "○中○务员",
+    "difficulty": 3
+  },
+  {
+    "id": 39,
+    "question": "雅各布和威廉整理的儿童与家庭集",
+    "author": "冰墨",
+    "answers": "格林童话",
+    "hint": "雅各布和威廉○○整理的儿童与家庭○○集",
+    "difficulty": 1
+  },
+  {
+    "id": 40,
+    "question": "子件",
+    "author": "Winfrid",
+    "answers": "电邮",
+    "hint": "○子○件",
+    "difficulty": 2
+  },
+  {
+    "id": 41,
+    "question": "志通俗",
+    "author": "bit汉字谜题",
+    "answers": "三国演义",
+    "hint": "○○志通俗○○",
+    "difficulty": 2
+  },
+  {
+    "id": 42,
+    "question": "南空",
+    "author": "想放假の猫猫战士",
+    "answers": "海航",
+    "hint": "○南○空",
+    "difficulty": 3
+  },
+  {
+    "id": 43,
+    "question": "入名单",
+    "author": "Winfrid",
+    "answers": "拉黑",
+    "hint": "○入○名单；网络用语",
+    "difficulty": 2
+  },
+  {
+    "id": 44,
+    "question": "型肺炎",
+    "author": "Winfrid",
+    "answers": "非典",
+    "hint": "○○型肺炎",
+    "difficulty": 1
+  },
+  {
+    "id": 45,
+    "question": "交惧症",
+    "author": "Winfrid",
+    "answers": "社恐",
+    "hint": "○交○惧症；网络用语",
+    "difficulty": 2
+  },
+  {
+    "id": 46,
+    "question": "型声",
+    "author": "Winfrid",
+    "answers": "B超",
+    "hint": "○型○声",
+    "difficulty": 3
+  },
+  {
+    "id": 47,
+    "question": "育、学及化",
+    "author": "Winfrid",
+    "answers": "联合国教科文组织",
+    "hint": "○○○○育、○学及○化○○",
+    "difficulty": 2
+  },
+  {
+    "id": 48,
+    "question": "下路",
+    "author": "Winfrid",
+    "answers": "地铁",
+    "hint": "○下○路",
+    "difficulty": 3
+  },
+  {
+    "id": 49,
+    "question": "女线",
+    "author": "Winfrid",
+    "answers": "少前",
+    "hint": "○女○线；游戏",
+    "difficulty": 2
+  },
+  {
+    "id": 50,
+    "question": "仔考，其怖",
+    "author": "Winfrid",
+    "answers": "细思极恐",
+    "hint": "仔○○考，○其○怖",
+    "difficulty": 2
+  },
+  {
+    "id": 51,
+    "question": "南州四",
+    "author": "Winfrid",
+    "answers": "云贵川",
+    "hint": "○南○州四○",
+    "difficulty": 3
+  },
+  {
+    "id": 52,
+    "question": "ersu",
+    "author": "Winfrid",
+    "answers": "vs",
+    "hint": "○ersu○；英语缩略词",
+    "difficulty": 4
+  },
+  {
+    "id": 53,
+    "question": "居民",
+    "author": "Winfrid",
+    "answers": "身份证",
+    "hint": "居民○○○",
+    "difficulty": 4
+  },
+  {
+    "id": 54,
+    "question": "精的巴",
+    "author": "Wonderepublic",
+    "answers": "妖尾",
+    "hint": "○精的○巴；动漫",
+    "difficulty": 2
+  },
+  {
+    "id": 55,
+    "question": "乐声",
+    "author": "Winfrid",
+    "answers": [
+      "快男",
+      "快女"
+    ],
+    "hint": "○乐○声；综艺",
+    "difficulty": 4
+  },
+  {
+    "id": 56,
+    "question": "级题",
+    "author": "Winfrid",
+    "answers": "超话",
+    "hint": "○级○题；网络用语",
+    "difficulty": 3
+  },
+  {
+    "id": 57,
+    "question": "暗之",
+    "author": "小绿草",
+    "answers": "黑魂",
+    "hint": "○暗之○；游戏",
+    "difficulty": 2
+  },
+  {
+    "id": 58,
+    "question": "性立观",
+    "author": "火冬",
+    "answers": "理中客",
+    "hint": "○性○立○观；网络用语",
+    "difficulty": 3
+  },
+  {
+    "id": 59,
+    "question": "记本脑",
+    "author": "Winfrid",
+    "answers": "笔电",
+    "hint": "○记本○脑",
+    "difficulty": 2
+  },
+  {
+    "id": 60,
+    "question": "坏",
+    "author": "Winfrid",
+    "answers": [
+      "崩三",
+      "崩3"
+    ],
+    "hint": "○坏○；游戏",
+    "difficulty": 5
+  },
+  {
+    "id": 61,
+    "question": "色戒",
+    "author": "Dir.Steven",
+    "answers": "红警",
+    "hint": "○色○戒；游戏",
+    "difficulty": 3
+  },
+  {
+    "id": 62,
+    "question": "次元戏",
+    "author": "Winfrid",
+    "answers": "二游",
+    "hint": "○次元○戏；网络用语",
+    "difficulty": 2
+  },
+  {
+    "id": 63,
+    "question": "太、太",
+    "author": "Winfrid",
+    "answers": "唐宗宋祖",
+    "hint": "○太○、○太○",
+    "difficulty": 4
+  },
+  {
+    "id": 64,
+    "question": "滚",
+    "author": "Winfrid",
+    "answers": "后摇",
+    "hint": "○○滚；音乐类型",
+    "difficulty": 5
+  },
+  {
+    "id": 65,
+    "question": "特伯雷主与士唤醒军之的奇幻冒险",
+    "author": "单魔素",
+    "answers": "坎公骑冠剑",
+    "hint": "○特伯雷○主与○士唤醒○军之○的奇幻冒险；游戏",
+    "difficulty": 1
+  },
+  {
+    "id": 66,
+    "question": "性数",
+    "author": "Winfrid",
+    "answers": "线代",
+    "hint": "○性○数；课程名",
+    "difficulty": 3
+  },
+  {
+    "id": 85,
+    "question": "rumadass",
+    "author": "V. Scarlescu",
+    "answers": "DnB",
+    "hint": "○ruma○d○ass",
+    "difficulty": 2
+  },
+  {
+    "id": 86,
+    "question": "dst",
+    "author": "V. Scarlescu",
+    "answers": "i. e.",
+    "hint": "○d○st",
+    "difficulty": 2
+  },
+  {
+    "id": 87,
+    "question": "etera",
+    "author": "V. Scarlescu",
+    "answers": "etc.",
+    "hint": "○○○etera",
+    "difficulty": 1
+  },
+  {
+    "id": 88,
+    "question": "属学",
+    "author": "V. Scarlescu",
+    "answers": [
+      "附中",
+      "附小"
+    ],
+    "hint": "○属○学",
+    "difficulty": 2
+  },
+  {
+    "id": 89,
+    "question": "略悠",
+    "author": "V. Scarlescu",
+    "answers": "战忽局",
+    "hint": "○略○悠○",
+    "difficulty": 3
+  },
+  {
+    "id": 90,
+    "question": "inular",
+    "author": "V. Scarlescu",
+    "answers": "sg.",
+    "hint": "○in○ular",
+    "difficulty": 2
+  },
+  {
+    "id": 91,
+    "question": "化和游",
+    "author": "Cel₂NK₇",
+    "answers": "文旅",
+    "difficulty": 3
+  },
+  {
+    "id": 67,
+    "question": "理学",
+    "author": "Seleclipse",
+    "answers": [
+      "物院",
+      "物化"
+    ],
+    "hint": "○理学○/○理○学；与北京大学有关",
+    "difficulty": 3,
+    "tags": {
+      "谜协": "答案的词汇与北大/北大谜协/P&KU群的文化有关",
+      "多解": "本题或许存在多种答案。这里设置了两种预设答案"
+    }
+  },
+  {
+    "id": 68,
+    "question": "大学部",
+    "author": "东风咕早苗",
+    "answers": "北医",
+    "hint": "○大○学部；与北京大学有关",
+    "difficulty": 2,
+    "tags": {
+      "谜协": "答案的词汇与北大/北大谜协/P&KU群的文化有关"
+    }
+  },
+  {
+    "id": 69,
+    "question": "为华",
+    "author": "D3D4",
+    "answers": "设精",
+    "hint": "○为○华；与QQ群有关",
+    "difficulty": 3,
+    "tags": {
+      "谜协": "答案的词汇与北大/北大谜协/P&KU群的文化有关"
+    }
+  },
+  {
+    "id": 70,
+    "question": "色星期",
+    "author": "Winfrid",
+    "answers": "谜五",
+    "hint": "○色星期○；与北大谜协有关",
+    "difficulty": 1,
+    "tags": {
+      "谜协": "答案的词汇与北大/北大谜协/P&KU群的文化有关"
+    }
+  },
+  {
+    "id": 71,
+    "question": "世民",
+    "author": "单魔素",
+    "answers": "经济",
+    "hint": "○世○民",
+    "difficulty": 4,
+    "tags": {
+      "词源": "确切地说，比起“缩略语”，在本题里“词源”更符合原词与答案的关系"
+    }
+  },
+  {
+    "id": 72,
+    "question": "我以，之以",
+    "author": "Winfrid",
+    "answers": "投桃报李",
+    "hint": "○我以○，○之以○；成语",
+    "difficulty": 4,
+    "tags": {
+      "词源": "确切地说，比起“缩略语”，在本题里“词源”更符合原词与答案的关系"
+    }
+  },
+  {
+    "id": 73,
+    "question": "不敢，不敢",
+    "author": "Winfrid",
+    "answers": "暴虎冯河",
+    "hint": "不敢○○，不敢○○；成语",
+    "difficulty": 5,
+    "tags": {
+      "词源": "确切地说，比起“缩略语”，在本题里“词源”更符合原词与答案的关系"
+    }
+  },
+  {
+    "id": 74,
+    "question": "集",
+    "author": "Winfrid",
+    "answers": "兰亭序",
+    "hint": "○○集○",
+    "difficulty": 5,
+    "tags": {
+      "别称": "确切地说，比起“缩略语”，在本题里“别称”更适合原词与答案的关系"
+    }
+  },
+  {
+    "id": 75,
+    "question": "感",
+    "author": "想放假の猫猫战士",
+    "answers": "叹号",
+    "hint": "感○○",
+    "difficulty": 5,
+    "tags": {
+      "别称": "确切地说，比起“缩略语”，在本题里“别称”更适合原词与答案的关系"
+    }
+  },
+  {
+    "id": 76,
+    "question": "芝",
+    "author": "想放假の猫猫战士",
+    "answers": [
+      "麻油",
+      "麻酱"
+    ],
+    "hint": "芝○○",
+    "difficulty": 5,
+    "tags": {
+      "别称": "确切地说，比起“缩略语”，在本题里“别称”更适合原词与答案的关系",
+      "多解": "本题或许存在多种答案。这里设置了两种预设答案"
+    }
+  },
+  {
+    "id": 77,
+    "question": "语言",
+    "author": "Winfrid",
+    "answers": "大模型",
+    "hint": "○语言○○",
+    "difficulty": 5,
+    "tags": {
+      "多解": "本题或许存在多种答案。这里只设置了一种预设答案"
+    }
+  },
+  {
+    "id": 78,
+    "question": "以",
+    "author": "proton",
+    "answers": "一言蔽之",
+    "hint": "○○以○○",
+    "difficulty": 5,
+    "tags": {
+      "多解": "本题或许存在多种答案。这里只设置了一种预设答案",
+      "词源": "确切地说，比起“缩略语”，在本题里“词源”更符合原词与答案的关系"
+    }
+  },
+  {
+    "id": 79,
+    "question": "而",
+    "author": "proton",
+    "answers": "温故知新",
+    "hint": "○○而○○",
+    "difficulty": 5,
+    "tags": {
+      "多解": "本题或许存在多种答案。这里只设置了一种预设答案",
+      "词源": "确切地说，比起“缩略语”，在本题里“词源”更符合原词与答案的关系"
+    }
+  },
+  {
+    "id": 80,
+    "question": "or",
+    "author": "Winfrid",
+    "answers": "sry",
+    "hint": "○or○○",
+    "difficulty": 5,
+    "tags": {
+      "多解": "本题或许存在多种答案。这里只设置了一种预设答案"
+    }
+  },
+  {
+    "id": 81,
+    "question": "yohuo",
+    "author": "Winfrid",
+    "answers": "u1s1",
+    "hint": "yo○1○huo1",
+    "difficulty": 3,
+    "tags": {
+      "变格": "本题不够严谨，仅供娱乐"
+    }
+  },
+  {
+    "id": 82,
+    "question": "上好",
+    "author": "风怒大汉堡",
+    "answers": "早",
+    "hint": "○上好",
+    "difficulty": 3,
+    "tags": {
+      "变格": "本题不够严谨，仅供娱乐"
+    }
+  },
+  {
+    "id": 83,
+    "question": "oo ui",
+    "author": "屑abandon",
+    "answers": "kksk",
+    "hint": "○o○o○u○i",
+    "difficulty": 3,
+    "tags": {
+      "变格": "本题不够严谨，仅供娱乐"
+    }
+  },
+  {
+    "id": 84,
+    "question": "の",
+    "author": "Mamako",
+    "answers": "何意味",
+    "hint": "○の○○；网络流行语",
+    "difficulty": 5,
+    "tags": {
+      "多解": "本题或许存在多种答案。这里只设置了一种预设答案"
+    }
+  }
+]
