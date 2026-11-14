@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Bulb } from './Bulb';
+import { BulbIcon } from '../../../components/BulbIcon';
 import { PuzzleCard as AnswerCard, type AnswerResult } from '../../../components/PuzzleCard';
 import { Note } from '../../../components/Note';
 import type { QuizCardProps } from '../../../hooks/useQuiz';
@@ -23,7 +23,7 @@ export function PuzzleCard({ puzzle, index, solved, hidden, onSolve }: QuizCardP
     {hints.length > 0 && <div className="hint-list">{hints.map((hint, hintIndex) => <Note
       key={hintIndex} id={`hint-${puzzle.id}-${hintIndex}`} className="hint-toggle" text={hint}
       label={`第 ${index + 1} 题的提示${hints.length > 1 ? ` ${hintIndex + 1}` : ''}`}>
-      <Bulb />{hints.length > 1 && <span className="hint-index" aria-hidden="true">{hintIndex + 1}</span>}
+      <BulbIcon />{hints.length > 1 && <span className="hint-index" aria-hidden="true">{hintIndex + 1}</span>}
     </Note>)}</div>}
   </>;
   return <AnswerCard id={puzzle.id} answers={puzzle.answers} solved={solved} onSolve={onSolve} onAttempt={onAttempt} lockWhenSolved>
