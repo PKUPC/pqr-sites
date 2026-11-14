@@ -153,6 +153,11 @@ for (const slug of ['', 'missing-abbreviations/', 'unicode-plus-one/']) {
       const first = page.locator('.card').first();
       await first.locator('input').fill('错误答案');
       await first.locator('input').press('Enter');
+      // Inspect the flash at its strongest tint instead of racing its duration.
+      await first.evaluate(card => card.getAnimations().forEach(animation => {
+        animation.pause();
+        animation.currentTime = 0;
+      }));
       await expect(first.locator('.feedback')).toBeVisible();
       await expect(first.locator('.feedback')).toContainText('答案不正确');
       const errorResults = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']).analyze();

@@ -17,7 +17,7 @@ export function PuzzleCard({ puzzle, index, solved, hidden, onSolve }: QuizCardP
   const onAttempt = (result: AnswerResult) => {
     animation.current?.cancel();
     if (result === 'incorrect' && !matchMedia('(prefers-reduced-motion: reduce)').matches && card.current?.animate) {
-      animation.current = card.current.animate([{ backgroundColor: '#ff808a', borderColor: '#ae1530' }, {}], { duration: 420, easing: 'ease-out' });
+      animation.current = card.current.animate([{ backgroundColor: '#ffb3b9', borderColor: '#ae1530' }, {}], { duration: 420, easing: 'ease-out' });
     }
   };
   const hints = (Array.isArray(puzzle.hint) ? puzzle.hint : (puzzle.hint ?? '').split(/[；;]/)).map(hint => hint.trim()).filter(Boolean);
