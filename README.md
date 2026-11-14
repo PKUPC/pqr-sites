@@ -45,13 +45,14 @@ npm run dev
 本地开发地址为 `http://127.0.0.1:5173/`，两期页面分别位于 `/missing-abbreviations/` 和 `/unicode-plus-one/`。首页、每期页面均为独立 HTML 入口，无需客户端路由或服务器端 Node 服务。
 
 ```sh
+npm run format
 npm run check
 npx playwright install chromium webkit
 npm run test:e2e
 npm run preview
 ```
 
-`check` 包含代码检查、逻辑测试、类型检查、生产构建和公开产物检查。浏览器测试针对构建后的页面；先运行 `check` 或 `build`。`preview` 默认在 `http://127.0.0.1:4173/` 预览。Chromium/WebKit 自动化与移动视口检查不能代替 QQ／微信内置浏览器的真机验收。
+`format` 使用 Prettier 统一源码、脚本、测试与文档的排版；`format:check` 只检查不修改。`check` 包含格式检查、代码检查、逻辑测试、类型检查、生产构建和公开产物检查。浏览器测试针对构建后的页面；先运行 `check` 或 `build`。`preview` 默认在 `http://127.0.0.1:4173/` 预览。Chromium/WebKit 自动化与移动视口检查不能代替 QQ／微信内置浏览器的真机验收。
 
 ## 内容与代码组织
 
@@ -89,3 +90,9 @@ unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmen
 使用 `@base-ui/react` 的无样式 Dialog 与 Popover 承接焦点管理、键盘和气泡触发行为；公共组件只做必要封装，不引入 Material UI 或统一主题。`FloatingNotes` 只协调同时打开的提示。提示保留站点内的原有排版，Positioner 的布局由站点 CSS 指定；弹窗的遮罩、定位与视觉也由站点维护。新增复杂交互优先使用 Base UI，避免重复实现焦点陷阱或全局键盘监听。
 
 弹层打开状态的 axe 检查仅排除 Base UI 自动生成的 `[data-base-ui-focus-guard]` 焦点哨兵，遵循[维护者对 VoiceOver 兼容行为的说明](https://github.com/mui/base-ui/issues/5237#issuecomment-4978602561)；实际弹窗、提示内容及键盘焦点行为仍需完整验证。
+
+## 代码格式
+
+Prettier 负责排版，ESLint 负责代码与依赖边界规则。统一使用 2 空格缩进、JavaScript/TypeScript 单引号、分号、100 列换行目标、尾随逗号和 LF 换行；具体配置见 `.prettierrc.json`。编辑后先运行 `npm run format`，再运行 `npm run check`。
+
+`.prettierignore` 排除依赖、自动生成的数据、构建产物、锁文件、静态资源和本地验证记录；题库 JSON 作为可编辑源码参与格式检查。批量格式化与功能修改分开提交。

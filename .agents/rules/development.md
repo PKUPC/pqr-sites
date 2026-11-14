@@ -31,7 +31,8 @@
 ## 本仓库的本地检查
 
 - 使用 `npm ci` 安装锁文件中的依赖，以 `npm run dev` 启动开发；新增依赖需说明实际用途，保留每期独立样式。
-- 完成变更后运行 `npm run check`。涉及网页交互时，在构建后运行 `npm run test:e2e`；首次需安装 Playwright 浏览器。
+- 排版统一使用 Prettier（见 `.prettierrc.json`），编辑后运行 `npm run format`；`npm run format:check` 只检查不修改。批量格式化 MUST 与功能修改分开提交，不手工格式化生成文件或静态资源。
+- 完成变更后运行 `npm run check`（包含格式检查）。涉及网页交互时，在构建后运行 `npm run test:e2e`；首次需安装 Playwright 浏览器。
 - 题库先通过本地校验及 Unicode 预计算，再构建。`src/generated/`、`dist/`、浏览器报告和截图不提交；本地截图放入 `.agents/local/`。
 - 页面目标为同域名下的独立静态路径。修改分享信息时检查构建 HTML，不依赖浏览器启动后设置元信息。QQ／微信内置浏览器的正式支持需要真机验证。
 
