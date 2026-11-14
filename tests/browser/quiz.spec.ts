@@ -171,7 +171,12 @@ test('local static routes serve real assets and return 404 for missing files', a
     else await expect(page.getByRole('link', { name: /第 2 期/ })).toBeVisible();
   }
   expect(errors).toEqual([]);
-  for (const path of ['/missing-abbreviations/missing.js', '/unicode-plus-one/missing.png', '/unknown-page/']) {
+  for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
+    const response = await request.get(`/${slug}/index.html`);
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain(`rel="canonical" href="https://pqr.pkupuzzle.art/${slug}/"`);
+  }
+  for (const path of ['/missing-abbreviations/missing.js', '/unicode-plus-one/missing.png', '/unknown-page/', '/sites/missing-abbreviations/index.html', '/sites/unicode-plus-one/index.html']) {
     expect((await request.get(path)).status()).toBe(404);
   }
 });

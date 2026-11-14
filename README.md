@@ -58,7 +58,7 @@ npm run preview
 - `catalog.json`：活动目录，维护名称、期数、简介、题数和主题色，供首页及构建元信息使用。
 - `sites/<site>/puzzles.json`：可编辑题库，保留稳定 ID；题目、答案均为公开的客户端数据。
 - `sites/<site>/Introduction.tsx`、`style.css`：每期独立介绍、署名与视觉样式。
-- `sites/<site>/main.tsx`：各期 React 入口；对应根目录下的 `<site>/index.html`。
+- `sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `sites/`。
 - `src/shared/`：判题、进度、提示、完成弹窗和卡片的公共行为。新增页面可采用独立组件，不要求共用卡片外观。
 - `src/home/`：统一入口首页，不加载各期完整题库。
 - `scripts/prepare.mjs`：通用题库准备入口，负责读取、校验、调用可选转换器和输出生成数据。

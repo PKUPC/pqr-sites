@@ -10,8 +10,23 @@ const escape = (value: string) => value.replace(/[&<>"']/g, char => ({
 
 export default defineConfig({
   plugins: [react(), {
-    name: 'pqr-static-metadata',
+    name: 'pqr-pages',
     configureServer(server) {
+      // Public URLs stay independent of the source directory layout.
+      server.middlewares.use((request, response, next) => {
+        const url = new URL(request.url ?? '/', 'http://localhost');
+        const site = catalog.find(site => [
+          `/${site.id}`, `/${site.id}/`, `/${site.id}/index.html`,
+        ].includes(url.pathname));
+        if (!site) return next();
+        if (url.pathname === `/${site.id}`) {
+          response.writeHead(308, { Location: `/${site.id}/${url.search}` });
+          response.end();
+          return;
+        }
+        request.url = `/sites/${site.id}/index.html${url.search}`;
+        next();
+      });
       const sourceFiles = catalog.map(site => resolve(import.meta.dirname, 'sites', site.id, 'puzzles.json'));
       const transformerDirectory = resolve(import.meta.dirname, 'scripts', 'transformer');
       server.watcher.add([...sourceFiles, transformerDirectory]);
@@ -27,10 +42,24 @@ export default defineConfig({
       };
       for (const event of ['add', 'change', 'unlink'] as const) server.watcher.on(event, refreshData);
     },
+    generateBundle: {
+      order: 'post',
+      handler(_options, bundle) {
+        for (const site of catalog) {
+          const source = `sites/${site.id}/index.html`;
+          const destination = `${site.id}/index.html`;
+          const page = bundle[source];
+          if (!page || page.type !== 'asset') this.error(`Missing HTML entry: ${source}`);
+          if (bundle[destination]) this.error(`Duplicate HTML output: ${destination}`);
+          delete bundle[source];
+          this.emitFile({ type: 'asset', fileName: destination, source: page.source });
+        }
+      },
+    },
     transformIndexHtml: {
       order: 'pre',
       handler(html, ctx) {
-        const site = catalog.find(site => ctx.path === `/${site.id}/index.html` || ctx.path === `/${site.id}/`);
+        const site = catalog.find(site => ctx.filename === resolve(import.meta.dirname, 'sites', site.id, 'index.html'));
         const title = site ? `${site.title}｜P&KU 群聊集萃 · 第 ${site.edition} 期` : 'PQR｜P&KU Quiz Research';
         const description = site?.description ?? '欢迎来到 PQR！P&KU 群每周五晚 22:00 的 Quiz/微型谜题企划。浏览各期线上存档，随时开始解谜。';
         const url = `https://pqr.pkupuzzle.art/${site ? `${site.id}/` : ''}`;
@@ -70,7 +99,10 @@ export default defineConfig({
     target: ['chrome90', 'safari15', 'firefox90'],
     sourcemap: false,
     rolldownOptions: {
-      input: Object.fromEntries(['', ...catalog.map(site => site.id)].map(id => [id || 'home', resolve(import.meta.dirname, id, 'index.html')])),
+      input: {
+        home: resolve(import.meta.dirname, 'index.html'),
+        ...Object.fromEntries(catalog.map(site => [site.id, resolve(import.meta.dirname, 'sites', site.id, 'index.html')])),
+      },
     },
   },
 });
