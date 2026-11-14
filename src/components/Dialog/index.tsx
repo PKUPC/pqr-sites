@@ -1,26 +1,23 @@
-import { focusableSelector, useDialog } from './useDialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import type { DialogProps } from './types';
 
-/** Accessible modal behavior; the caller supplies the content, styles and focus targets. */
-export function Dialog(props: DialogProps) {
-  const { className, labelledBy, describedBy, closeOnSurfaceClick = false, children } = props;
-  const { dialog, close, dismissed } = useDialog(props);
-
-  return <dialog ref={dialog} className={className} aria-modal="true" aria-labelledby={labelledBy} aria-describedby={describedBy}
-    onCancel={event => { event.preventDefault(); close(); }} onClose={dismissed}
-    onKeyDown={event => {
-      if (event.key === 'Escape') { event.preventDefault(); close(); }
-      if (event.key !== 'Tab') return;
-      const elements = [...event.currentTarget.querySelectorAll<HTMLElement>(focusableSelector)].filter(element => element.getClientRects().length > 0);
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-      if (!first) { event.preventDefault(); return; }
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    }}
-    onClick={event => {
-      if (event.target !== event.currentTarget) return;
-      const box = event.currentTarget.getBoundingClientRect();
-      if (closeOnSurfaceClick || event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close();
-    }}>{children({ close })}</dialog>;
+function DialogRoot({ open, onDismiss, initialFocus, returnFocus, className,
+  backdropClassName, viewportClassName, children }: DialogProps) {
+  return <BaseDialog.Root open={open} onOpenChange={nextOpen => { if (!nextOpen) onDismiss(); }}>
+    <BaseDialog.Portal>
+      <BaseDialog.Backdrop className={backdropClassName} />
+      <BaseDialog.Viewport className={viewportClassName}>
+        <BaseDialog.Popup className={className} initialFocus={initialFocus} finalFocus={returnFocus}>
+          {children}
+        </BaseDialog.Popup>
+      </BaseDialog.Viewport>
+    </BaseDialog.Portal>
+  </BaseDialog.Root>;
 }
+
+/** Behavior comes from Base UI; callers own content and styling. */
+export const Dialog = Object.assign(DialogRoot, {
+  Title: BaseDialog.Title,
+  Description: BaseDialog.Description,
+  Close: BaseDialog.Close,
+});

@@ -574,8 +574,12 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 
 .completion-card {
-  inline-size: min(420px, calc(100% - 40px));
-  max-block-size: calc(100% - 40px);
+  position:relative;
+  margin:0;
+  inline-size: min(420px, 100%);
+  max-block-size: calc(100vh - 40px);
+  max-block-size: calc(100svh - 40px);
+  overflow:auto;
   padding: 26px clamp(18px, 5vw, 28px);
   border: 1px solid var(--edge);
   border-radius: 10px;
@@ -584,7 +588,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   color: var(--ink);
 }
 
-.completion-card::backdrop { background: rgb(46 35 32 / .68); }
+.completion-backdrop { position:fixed; inset:0; z-index:100; background:rgb(46 35 32 / .68); }
 
 .completion-kicker {
   color: var(--muted);
@@ -621,7 +625,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .completion-card[open] { animation: completion-in .28s ease-out; }
+  .completion-card[data-open] { animation: completion-in .28s ease-out; }
 }
 
 @keyframes completion-in {

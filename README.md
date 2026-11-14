@@ -60,7 +60,7 @@ npm run preview
 - `src/sites/<site>/App.tsx`、`components/PuzzleCard.tsx`、`components/Completion.tsx`：每期自己的页面框架、题目卡片和完成弹窗视图；特殊题面、状态和类型也放在该站点下。
 - `src/sites/<site>/components/Introduction.tsx`、`style.css`、`accessibility.css`：每期独立介绍、署名、视觉样式与无障碍样式。
 - `src/sites/<site>/index.html`、`main.tsx`：各期 HTML 与 React 入口，和题库、介绍、样式统一存放。开发配置将公开 URL 映射到对应入口；构建后仍输出 `<site>/index.html`，网址不包含 `src/sites/`。
-- `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 提供模态与焦点控制；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
+- `src/components/<PascalCase>/index.tsx`：不依赖任何具体站点或题库的通用能力。`PuzzleCard` 通过 render prop 提供答题状态和表单事件，`Dialog` 基于 Base UI 提供模态与焦点控制，`Note` 基于 Base UI Popover 提供提示气泡；具体 DOM、文案、主题和特殊交互由站点实现并通过参数或 slot 接入。
 - 公共组件和站点页面的子组件放在自身目录下的 `components/`；单文件子组件直接用 `PascalCase.tsx`，需要配套文件时再建 PascalCase 目录并以 `index.tsx` 为入口。组件专用 hook 直接与所属组件入口同层，不另建 `hooks/`。
 - `src/hooks/`：独立通用 hook，`useQuiz` 提供进度/筛选状态，`useProgress` 管理浏览器进度。
 - `src/lib/`、`src/types/`、`src/styles/`：通用判题与存储工具、数据类型、无障碍工具样式。
@@ -82,3 +82,9 @@ unicode+1 的字素分格在构建阶段完成，浏览器不依赖 `Intl.Segmen
 普通题库无需转换器，准备步骤会直接输出校验后的数据。需要特殊处理时，在 `scripts/transformer/` 下添加与 `src/sites/catalog.json` 活动 ID 同名的 `.mjs` 文件，并导出 `transform(puzzles)`；它接收完整题库数组，返回转换后的数组，也可以返回 Promise。`prepare.mjs` 会按文件名自动引入，不需要增加题型判断或修改通用准备流程。
 
 转换器只在本地开发和构建时运行，不修改原题库文件，也不处理服务器操作。已配置转换器的导入或执行失败会中止准备，不会悄悄退回原始数据。
+
+## 通用交互组件
+
+使用 `@base-ui/react` 的无样式 Dialog 与 Popover 承接焦点管理、键盘和气泡触发行为；公共组件只做必要封装，不引入 Material UI 或统一主题。`FloatingNotes` 只协调同时打开的提示。提示保留站点内的原有排版，Positioner 的布局由站点 CSS 指定；弹窗的遮罩、定位与视觉也由站点维护。新增复杂交互优先使用 Base UI，避免重复实现焦点陷阱或全局键盘监听。
+
+弹层打开状态的 axe 检查仅排除 Base UI 自动生成的 `[data-base-ui-focus-guard]` 焦点哨兵，遵循[维护者对 VoiceOver 兼容行为的说明](https://github.com/mui/base-ui/issues/5237#issuecomment-4978602561)；实际弹窗、提示内容及键盘焦点行为仍需完整验证。

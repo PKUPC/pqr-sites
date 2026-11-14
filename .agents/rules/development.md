@@ -45,3 +45,5 @@
 - 网页源码 MUST 放在 `src/`，每期页面位于 `src/sites/<site>/`，首页位于 `src/home/`。`public/` 只存放直接复制到产物的静态资源；构建脚本、配置和测试仍使用各自的项目级目录。
 - 公共组件 MUST 放在 `src/components/<PascalCase>/`，入口为 `index.tsx`。公共组件和站点页面的子组件放在自身的 `components/`；单文件子组件直接使用 `PascalCase.tsx`，需要配套文件时再创建 PascalCase 目录，以 `index.tsx` 为入口。
 - 组件专用 hook MUST 与所属组件入口同层，不另建 `hooks/`。跨组件的独立通用 hook 放在 `src/hooks/`，工具、类型与通用样式分别放在 `src/lib/`、`src/types/` 和 `src/styles/`。按需建立目录，不创建空结构。
+
+- 弹窗、气泡等通用复杂交互 SHOULD 优先使用 `@base-ui/react`，公共组件只保留必要组合与状态协调。具体站点维护样式；替换底层组件后 MUST 验证键盘、触屏、焦点恢复、无障碍语义与窄屏布局。

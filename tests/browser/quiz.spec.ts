@@ -82,10 +82,47 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test(`${slug}: only one note opens and touch controls toggle and dismiss it`, async ({ page, browser }) => {
+    await page.goto(`/${slug}/`);
+    const triggers = page.locator('.hint-toggle');
+    await triggers.nth(0).focus();
+    await triggers.nth(0).press('Enter');
+    await expect(triggers.nth(0)).toHaveAttribute('aria-expanded', 'true');
+    await triggers.nth(1).focus();
+    await triggers.nth(1).press('Enter');
+    await expect(triggers.nth(0)).toHaveAttribute('aria-expanded', 'false');
+    await expect(triggers.nth(1)).toHaveAttribute('aria-expanded', 'true');
+    const accessibility = await new AxeBuilder({ page }).exclude('[data-base-ui-focus-guard]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    expect(accessibility.violations).toEqual([]);
+    await page.locator('h1').click();
+    await expect(page.locator('.float-trigger[aria-expanded="true"]')).toHaveCount(0);
+
+    const context = await browser.newContext({ hasTouch: true, viewport: { width: 390, height: 844 } });
+    try {
+      const touchPage = await context.newPage();
+      await touchPage.goto(`/${slug}/`);
+      const trigger = touchPage.locator('.hint-toggle').first();
+      await trigger.tap();
+      await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      await expect(touchPage.locator('.float-note:visible')).toHaveCount(1);
+      await trigger.tap();
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      await trigger.tap();
+      await touchPage.locator('h1').tap();
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    } finally { await context.close(); }
+  });
+
   test(`${slug}: completion preview traps focus, restores it and never saves synthetic progress`, async ({ page }) => {
     await page.goto(`/${slug}/?preview=completion`);
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    await dialog.evaluate(element => element.getAnimations().forEach(animation => animation.finish()));
+    // Base UI intentionally exposes redirecting focus guards to VoiceOver.
+    // Keep keyboard assertions below; exclude only library sentinels from axe.
+    // https://github.com/mui/base-ui/issues/5237#issuecomment-4978602561
+    const accessibility = await new AxeBuilder({ page }).exclude('[data-base-ui-focus-guard]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    expect(accessibility.violations).toEqual([]);
     await page.getByRole('button', { name: '继续浏览' }).focus();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('button', { name: '关闭', exact: true })).toBeFocused();
@@ -186,7 +223,7 @@ test('local static routes serve real assets and return 404 for missing files', a
   }
 });
 
-test('dialog capability fallback remains keyboard operable', async ({ page }) => {
+test('Base UI dialog works without native dialog methods', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { value: undefined });
     Object.defineProperty(HTMLDialogElement.prototype, 'close', { value: undefined });
