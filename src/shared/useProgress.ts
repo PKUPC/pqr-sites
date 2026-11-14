@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { decodeProgress, encodeProgress, progressKey } from './progress';
-import type { Puzzle, QuizId } from './types';
+import type { Puzzle } from './types';
 
-export function useProgress(id: QuizId, puzzles: Puzzle[], preview: boolean) {
+export function useProgress(id: string, puzzles: Puzzle[], preview: boolean) {
   const [snapshot, setSnapshot] = useState(() => {
     if (preview) return { solved: new Set(puzzles.map(puzzle => puzzle.id)), warning: '' };
     try { return { solved: decodeProgress(localStorage.getItem(progressKey(id)), puzzles.map(p => p.id)), warning: '' }; }
