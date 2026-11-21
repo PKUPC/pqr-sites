@@ -41,3 +41,16 @@ it('supports an unrelated quiz ID and caller-specific data without changing shar
   expect(html).toContain('data-illustration="drawing.svg"');
   expect(html).toContain('1 / 1');
 });
+
+it('lets a caller supply individual authors for a jointly credited puzzle', () => {
+  function JointQuiz() {
+    const quiz = useQuiz({
+      storageId: 'joint-authors',
+      preview: true,
+      puzzles: [{ id: 1, question: 'q', answers: 'a', author: 'A、B' }],
+      getAuthors: (puzzle) => puzzle.author.split('、'),
+    });
+    return <output>{quiz.authors.join(',')}</output>;
+  }
+  expect(renderToStaticMarkup(<JointQuiz />)).toBe('<output>A,B</output>');
+});
