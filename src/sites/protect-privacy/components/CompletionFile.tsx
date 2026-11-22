@@ -62,7 +62,7 @@ export function CompletionFile({
                 {dlcTotal > 0 && (
                   <span className="completion-breakdown completion-mask">
                     <span>
-                      其中有 {total - dlcTotal} 道正题和 {dlcTotal} 道 DLC 题目。
+                      含{total - dlcTotal}道正题和{dlcTotal}道DLC。
                     </span>
                   </span>
                 )}
