@@ -5,16 +5,17 @@ import source from '../../src/sites/protect-privacy/puzzles.json' with { type: '
 import prepared from '../../src/generated/protect-privacy.json' with { type: 'json' };
 
 describe('protect-privacy archive data', () => {
-  it('keeps the 22 questions, fixed difficulties and three DLC entries', () => {
+  it('keeps the 34 questions, reviewed difficulties and fifteen DLC entries', () => {
     expect(() => validatePuzzles(source)).not.toThrow();
     expect(() => validatePuzzles([{ ...source[0], difficulty: 6 }])).toThrow(/Invalid difficulty/);
-    expect(source).toHaveLength(22);
+    expect(source).toHaveLength(34);
     expect(
       source.filter((puzzle) => 'dlc' in puzzle && puzzle.dlc).map((puzzle) => puzzle.id),
-    ).toEqual([20, 21, 22]);
+    ).toEqual([20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]);
     expect(source.every((puzzle) => !('hint' in puzzle))).toBe(true);
     expect(source.map((puzzle) => puzzle.difficulty)).toEqual([
-      2, 2, 1, 3, 1, 5, 3, 3, 1, 1, 5, 1, 1, 3, 4, 1, 4, 4, 3, 2, 3, 2,
+      1, 2, 2, 3, 3, 3, 3, 3, 1, 2, 3, 2, 2, 2, 3, 4, 2, 3, 5, 3, 3, 4, 3, 2, 3, 3, 2, 4, 4, 2, 3,
+      5, 3, 3,
     ]);
   });
 

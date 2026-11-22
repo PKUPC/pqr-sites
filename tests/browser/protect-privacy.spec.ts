@@ -14,7 +14,7 @@ test('fourth edition is linked from the archive home', async ({ page }, testInfo
     `PQR-${String(site.edition).padStart(2, '0')}-01`,
   );
   await expect(page.locator('#puzzles .card')).toHaveCount(19);
-  await expect(page.locator('#dlc-puzzles .card')).toHaveCount(3);
+  await expect(page.locator('#dlc-puzzles .card')).toHaveCount(15);
   await expect(page.locator('.hint-toggle')).toHaveCount(0);
   await page.screenshot({
     path: `.agents/local/protect-privacy-${testInfo.project.name}-desktop.png`,
@@ -25,7 +25,7 @@ test('fourth edition is linked from the archive home', async ({ page }, testInfo
 test('fixed difficulty, joint author filters, answers and progress work', async ({ page }) => {
   await page.goto('/protect-privacy/');
   const card = page.locator('[data-puzzle-id="1"]');
-  await expect(card.getByRole('img', { name: '难度 2/5' })).toBeVisible();
+  await expect(card.getByRole('img', { name: '难度 1/5' })).toBeVisible();
   await expect(card.locator('.difficulty-segment')).toHaveCount(5);
   await card.locator('input').fill('错误答案');
   await card.locator('input').press('Enter');
@@ -40,7 +40,10 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
   for (const author of ['proton', 'ClashのRPC']) {
     await page.locator('#author-filter').selectOption(author);
     await expect(page.locator('[data-puzzle-id="18"]')).toBeVisible();
-    await expect(page.locator('.dlc-section')).toBeHidden();
+    await expect(page.locator('.dlc-section')).toBeVisible();
+    const dlcId = author === 'proton' ? 24 : 20;
+    await expect(page.locator(`[data-puzzle-id="${dlcId}"]`)).toBeVisible();
+    await expect(page.locator('[data-puzzle-id="21"]')).toBeHidden();
     await expect(page.locator('[data-puzzle-id="18"] .author-name')).toHaveText([
       'proton、',
       'ClashのRPC',
@@ -48,7 +51,9 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
   }
   await page.locator('#author-filter').selectOption('');
   await page.locator('#puzzle-sort').selectOption('hard');
-  await expect(page.locator('#puzzles .card').first()).toHaveAttribute('data-puzzle-id', '6');
+  await expect(
+    page.locator('#puzzles .card').first().getByRole('img', { name: '难度 5/5' }),
+  ).toBeVisible();
   const dlc = page.locator('#answer-20');
   await dlc.fill('-1');
   await dlc.press('Enter');
@@ -166,4 +171,30 @@ test('touch toggles question layers and the completion file', async ({ browser }
   } finally {
     await context.close();
   }
+});
+
+test('new DLC authors and Latin question layers keep their layout and progress', async ({
+  page,
+}) => {
+  await page.goto('/protect-privacy/');
+  await page.locator('#author-filter').selectOption('Николай,III');
+  await expect(page.locator('#puzzles .card:visible')).toHaveCount(0);
+  await expect(page.locator('#dlc-puzzles .card:visible')).toHaveCount(1);
+  const card = page.locator('[data-puzzle-id="34"]');
+  await card.locator('input').fill('V字仇杀队');
+  await card.locator('input').press('Enter');
+  await expect(card).toHaveClass(/solved/);
+  const before = (await card.boundingBox())!;
+  const toggle = card.locator('.question-toggle');
+  await toggle.press('Enter');
+  await expect(toggle).toHaveAttribute(
+    'aria-label',
+    /Voila! In view, a humble vaudevillian veteran/,
+  );
+  const after = (await card.boundingBox())!;
+  expect(after.height).toBeCloseTo(before.height, 1);
+  expect(after.width).toBeCloseTo(before.width, 1);
+  await page.reload();
+  await expect(card).toHaveClass(/solved/);
+  await expect(page.locator('progress')).toHaveJSProperty('value', 1);
 });
