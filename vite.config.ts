@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, normalizePath } from 'vite';
 import react from '@vitejs/plugin-react';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -43,13 +43,18 @@ export default defineConfig({
           next();
         });
         const sourceFiles = catalog.map((site) =>
-          resolve(import.meta.dirname, 'src', 'sites', site.id, 'puzzles.json'),
+          normalizePath(resolve(import.meta.dirname, 'src', 'sites', site.id, 'puzzles.json')),
         );
-        const transformerDirectory = resolve(import.meta.dirname, 'scripts', 'transformer');
+        const transformerDirectory = normalizePath(
+          resolve(import.meta.dirname, 'scripts', 'transformer'),
+        );
         server.watcher.add([...sourceFiles, transformerDirectory]);
         const refreshData = (file: string) => {
-          const isTransformer = dirname(file) === transformerDirectory && file.endsWith('.mjs');
-          if (!sourceFiles.includes(file) && !isTransformer) return;
+          const normalized = normalizePath(file);
+          const isTransformer =
+            normalizePath(dirname(normalized)) === transformerDirectory &&
+            normalized.endsWith('.mjs');
+          if (!sourceFiles.includes(normalized) && !isTransformer) return;
           try {
             execFileSync(process.execPath, ['scripts/prepare.mjs'], {
               cwd: import.meta.dirname,
@@ -87,7 +92,8 @@ export default defineConfig({
         handler(html, ctx) {
           const site = catalog.find(
             (site) =>
-              ctx.filename === resolve(import.meta.dirname, 'src', 'sites', site.id, 'index.html'),
+              normalizePath(ctx.filename) ===
+              normalizePath(resolve(import.meta.dirname, 'src', 'sites', site.id, 'index.html')),
           );
           const title = site
             ? `${site.title}｜P&KU 群聊集萃 · 第 ${site.edition} 期`
