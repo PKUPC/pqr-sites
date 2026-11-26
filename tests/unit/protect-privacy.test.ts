@@ -24,6 +24,11 @@ describe('protect-privacy archive data', () => {
       expect(puzzle.glyphs.join('')).toBe(source[index].question);
       expect(puzzle.originalGlyphs.join('')).toBe(source[index].original);
       expect(puzzle.glyphs).toHaveLength(puzzle.originalGlyphs.length);
+      for (const [slot, glyph] of puzzle.glyphs.entries()) {
+        if (glyph !== '□') {
+          expect(puzzle.originalGlyphs[slot], `question ${puzzle.id}, slot ${slot}`).toBe(glyph);
+        }
+      }
     }
     expect(
       prepared.find((puzzle) => puzzle.id === 20)!.glyphs.filter((glyph) => glyph === '\n'),
