@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PrivacyPuzzle } from '../types';
 
 const describeMasked = (text: string) => text.replace(/□+/g, '［遮盖］');
+const isLatinWordGlyph = (glyph: string) => /^[!-~‘’“”]$/u.test(glyph);
 
 export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: boolean }) {
   const [showOriginal, setShowOriginal] = useState(true);
@@ -9,26 +10,57 @@ export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: bo
   const Surface = solved ? 'button' : 'div';
 
   function layer(glyphs: string[], original: boolean) {
+    function cell(index: number, latin = false) {
+      const masked = puzzle.glyphs[index] === '□';
+      const classes = [
+        masked ? (original ? 'question-restored' : 'question-blank') : '',
+        latin ? 'question-letter' : /^[!-~]$/u.test(puzzle.glyphs[index]) ? 'question-narrow' : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
+      return (
+        <span key={index} className={classes || undefined} data-slot={index}>
+          {latin ? (
+            <>
+              <span className="question-letter-size">{puzzle.originalGlyphs[index]}</span>
+              <span className="question-letter-value">{glyphs[index]}</span>
+            </>
+          ) : (
+            glyphs[index]
+          )}
+        </span>
+      );
+    }
+
+    const content = [];
+    for (let index = 0; index < glyphs.length;) {
+      if (glyphs[index] === '\n') {
+        content.push(<br key={index++} />);
+      } else if (puzzle.latinWords && puzzle.originalGlyphs[index] === ' ') {
+        content.push(' ');
+        index++;
+      } else if (puzzle.latinWords && isLatinWordGlyph(puzzle.originalGlyphs[index])) {
+        const start = index;
+        const letters = [];
+        while (index < glyphs.length && isLatinWordGlyph(puzzle.originalGlyphs[index])) {
+          letters.push(cell(index++, true));
+        }
+        content.push(
+          <span key={start} className="question-word">
+            {letters}
+          </span>,
+        );
+      } else {
+        content.push(cell(index++));
+      }
+    }
+
     return (
       <span
-        className={`question-text ${original ? 'question-original' : 'question-encoded'}`}
+        className={`question-text ${original ? 'question-original' : 'question-encoded'}${puzzle.latinWords ? ' question-text-latin' : ''}`}
         aria-hidden="true"
       >
-        {glyphs.map((glyph, index) => {
-          if (glyph === '\n') return <br key={index} />;
-          const masked = puzzle.glyphs[index] === '□';
-          const classes = [
-            masked ? (original ? 'question-restored' : 'question-blank') : '',
-            /^[!-~]$/u.test(puzzle.glyphs[index]) ? 'question-narrow' : '',
-          ]
-            .filter(Boolean)
-            .join(' ');
-          return (
-            <span key={index} className={classes || undefined} data-slot={index}>
-              {glyph}
-            </span>
-          );
-        })}
+        {content}
       </span>
     );
   }

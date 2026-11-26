@@ -409,31 +409,97 @@ test('touch toggles question layers and the completion file', async ({ browser }
   }
 });
 
-test('new DLC authors and Latin question layers keep their layout and progress', async ({
-  page,
-}) => {
-  await page.goto('/protect-privacy/');
-  await page.locator('#author-filter').selectOption('Николай,III');
-  await expect(page.locator('#puzzles .card:visible')).toHaveCount(0);
-  await expect(page.locator('#dlc-puzzles .card:visible')).toHaveCount(1);
-  const card = page.locator('[data-puzzle-id="34"]');
-  await card.locator('input').fill('V字仇杀队');
-  await card.locator('input').press('Enter');
-  await expect(card).toHaveClass(/solved/);
-  const before = (await card.boundingBox())!;
-  const toggle = card.locator('.question-toggle');
-  await expect(toggle).toHaveAttribute(
-    'aria-label',
-    /Voila! In view, a humble vaudevillian veteran/,
-  );
-  await toggle.press('Enter');
-  await expect(toggle).not.toHaveClass(/show-original/);
-  await toggle.press('Space');
-  await expect(toggle).toHaveClass(/show-original/);
-  const after = (await card.boundingBox())!;
-  expect(after.height).toBeCloseTo(before.height, 1);
-  expect(after.width).toBeCloseTo(before.width, 1);
-  await page.reload();
-  await expect(card).toHaveClass(/solved/);
-  await expect(page.locator('progress')).toHaveJSProperty('value', 1);
-});
+for (const width of [1280, 768, 390, 320]) {
+  test(`Latin question uses natural spacing and whole words at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/protect-privacy/');
+    await page.locator('#author-filter').selectOption('Николай,III');
+    await expect(page.locator('#puzzles .card:visible')).toHaveCount(0);
+    await expect(page.locator('#dlc-puzzles .card:visible')).toHaveCount(1);
+    const card = page.locator('[data-puzzle-id="34"]');
+    const geometry = (layer: string) =>
+      card.locator(layer).evaluate((element) => {
+        const root = element.getBoundingClientRect();
+        const rect = (node: Element) => {
+          const bounds = node.getBoundingClientRect();
+          return [bounds.x - root.x, bounds.y - root.y, bounds.width, bounds.height].map(
+            (value) => Math.round(value * 100) / 100,
+          );
+        };
+        return {
+          width: root.width,
+          fontSize: parseFloat(getComputedStyle(element).fontSize),
+          words: Array.from(element.querySelectorAll('.question-word'), (word) => ({
+            text: Array.from(
+              word.querySelectorAll('.question-letter-size'),
+              (letter) => letter.textContent,
+            ).join(''),
+            bounds: rect(word),
+            letters: Array.from(word.querySelectorAll('.question-letter'), (letter) => ({
+              text: letter.querySelector('.question-letter-size')!.textContent,
+              bounds: rect(letter),
+            })),
+          })),
+          slots: Array.from(element.querySelectorAll('[data-slot]'), rect),
+        };
+      });
+    const masked = await geometry('.question-encoded');
+    expect(masked.words.map((word) => word.text)).toEqual([
+      '"Voila!',
+      'In',
+      'view,',
+      'a',
+      'humble',
+      'vaudevillian',
+      'veteran...”',
+    ]);
+    for (const [index, word] of masked.words.entries()) {
+      expect(word.bounds[0]).toBeGreaterThanOrEqual(0);
+      expect(word.bounds[0] + word.bounds[2]).toBeLessThanOrEqual(masked.width + 0.1);
+      expect(new Set(word.letters.map((letter) => letter.bounds[1])).size).toBe(1);
+      const next = masked.words[index + 1];
+      if (next && next.bounds[1] === word.bounds[1]) {
+        const gap = next.bounds[0] - word.bounds[0] - word.bounds[2];
+        expect(gap).toBeGreaterThan(0);
+        expect(gap).toBeLessThan(masked.fontSize * 0.6);
+      }
+    }
+    const letters = masked.words.flatMap((word) => word.letters);
+    expect(letters.find((letter) => letter.text === 'i')!.bounds[2]).toBeLessThan(
+      letters.find((letter) => letter.text === 'm')!.bounds[2],
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    const before = (await card.boundingBox())!;
+    await card.screenshot({
+      path: `.agents/local/protect-privacy-${testInfo.project.name}-english-${width}-masked.png`,
+    });
+    await card.locator('input').fill('V字仇杀队');
+    await card.locator('input').press('Enter');
+    await expect(card).toHaveClass(/solved/);
+    const toggle = card.locator('.question-toggle');
+    await expect(toggle).toHaveAttribute(
+      'aria-label',
+      /Voila! In view, a humble vaudevillian veteran/,
+    );
+    expect((await geometry('.question-original')).slots).toEqual(masked.slots);
+    await card.screenshot({
+      path: `.agents/local/protect-privacy-${testInfo.project.name}-english-${width}-original.png`,
+    });
+    await toggle.press('Enter');
+    await expect(toggle).not.toHaveClass(/show-original/);
+    expect((await geometry('.question-encoded')).slots).toEqual(masked.slots);
+    await toggle.press('Space');
+    await expect(toggle).toHaveClass(/show-original/);
+    const after = (await card.boundingBox())!;
+    expect(after.height).toBeCloseTo(before.height, 1);
+    expect(after.width).toBeCloseTo(before.width, 1);
+    await page.reload();
+    await expect(card).toHaveClass(/solved/);
+    await expect(page.locator('progress')).toHaveJSProperty('value', 1);
+  });
+}

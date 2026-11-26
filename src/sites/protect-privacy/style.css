@@ -678,11 +678,42 @@ main {
   inline-size: calc(var(--question-cell-width) * 0.6);
 }
 
+.question-text-latin {
+  line-break: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.question-text > .question-word {
+  display: inline-flex;
+  inline-size: max-content;
+  white-space: nowrap;
+}
+
+.question-word > .question-letter {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  line-height: 1;
+}
+
+/* Both layers measure each Latin letter from the same original glyph. */
+.question-letter-size {
+  visibility: hidden;
+}
+
+.question-letter-value {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
 .question-blank,
 .question-restored {
   isolation: isolate;
 }
-.question-text > .question-blank {
+.question-text .question-blank {
   color: transparent;
 }
 
