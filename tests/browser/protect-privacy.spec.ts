@@ -102,49 +102,53 @@ test('whole questions preview on hover and clicks pin the original without reflo
   }
 });
 
-test('correct answers show one updating toast and keep focus and persistent solved status', async ({
+test('correct answers show card feedback and keep selectable answers and progress', async ({
   page,
 }) => {
   await page.goto('/protect-privacy/');
   const card = page.locator('[data-puzzle-id="1"]');
-  await expect(card.locator('.card-status')).toContainText('未解');
+  await expect(card.locator('.submit')).toHaveText('提交');
   const before = (await card.boundingBox())!;
   const paper = await card.evaluate((element) => getComputedStyle(element).backgroundColor);
   await card.locator('input').fill('错误');
   await card.locator('input').press('Enter');
-  await expect(page.locator('.solve-toast')).toHaveCount(0);
+  await expect(card.locator('.feedback')).toContainText('答案错误');
   await card.locator('input').fill('宫崎骏');
   await card.locator('.submit').click();
   await expect(card.locator('input')).toBeFocused();
-  await expect(card.locator('.card-status')).toContainText('已解');
-  await expect(card).not.toHaveCSS('background-color', paper);
+  await expect(card.locator('.submit')).toHaveText('答对了');
+  await expect(card.locator('.feedback')).toHaveText('第 1 题答对了。');
+  await expect(card.locator('input')).toHaveValue('宫崎骏');
+  await expect(card).toHaveCSS('background-color', paper);
   const after = (await card.boundingBox())!;
   expect(after.height).toBeCloseTo(before.height, 1);
-  const toast = page.locator('.solve-toast');
-  await expect(toast).toHaveCount(1);
-  await expect(toast).toContainText('第 1 题答对了');
-  await expect(toast).toContainText('已解 1/34');
   await page.locator('#answer-2').fill('玄武门之变');
   await page.locator('#answer-2').press('Enter');
-  await expect(toast).toHaveCount(1);
-  await expect(toast).toContainText('第 2 题答对了');
-  await expect(toast).toContainText('已解 2/34');
+  await expect(page.locator('[data-puzzle-id="2"] .submit')).toHaveText('答对了');
+  await expect(page.locator('#feedback-2')).toHaveText('第 2 题答对了。');
   await expect(page.locator('#answer-2')).toBeFocused();
-  await expect(toast).toHaveCount(0, { timeout: 5000 });
+  await expect(card.locator('.submit')).toHaveText('已解');
+  await expect(page.locator('[data-puzzle-id="2"] .submit')).toHaveText('已解');
+  await expect(card.locator('.feedback')).toBeEmpty();
+  await expect(page.locator('#feedback-2')).toBeEmpty();
   await page.locator('#answer-2').press('Enter');
-  await expect(toast).toHaveCount(0);
-  await page.reload();
-  await expect(card.locator('.card-status')).toContainText('已解');
-  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
-  await expect(toast).toHaveCount(0);
+  await expect(page.locator('#feedback-2')).toBeEmpty();
+  await card.locator('input').press('ControlOrMeta+A');
   expect(
-    await card.locator('.card-status').evaluate((element) => element.getAnimations().length),
-  ).toBe(0);
-  await page.locator('#answer-3').fill('王浩然');
-  await page.locator('#answer-3').press('Enter');
-  await expect(toast).toBeVisible();
-  await page.getByRole('button', { name: '关闭答对提示' }).click();
-  await expect(toast).toHaveCount(0);
+    await card
+      .locator('input')
+      .evaluate((element: HTMLInputElement) =>
+        element.value.slice(element.selectionStart ?? 0, element.selectionEnd ?? 0),
+      ),
+  ).toBe('宫崎骏');
+  await page.reload();
+  await expect(card.locator('.submit')).toHaveText('已解');
+  await expect(card.locator('input')).toHaveValue('宫崎骏');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
+  await expect(card.locator('.feedback')).toBeEmpty();
+  expect(await card.locator('.submit').evaluate((element) => element.getAnimations().length)).toBe(
+    0,
+  );
 });
 
 for (const width of [1280, 390, 320]) {
@@ -158,32 +162,28 @@ for (const width of [1280, 390, 320]) {
     const before = (await card.boundingBox())!;
     await card.locator('input').fill('宫崎骏');
     await card.locator('input').press('Enter');
-    await expect(card.locator('.card-status')).toContainText('已解');
-    await expect(page.locator('[data-puzzle-id="2"] .card-status')).toContainText('未解');
+    await expect(card.locator('.submit')).toHaveText('已解');
+    await expect(page.locator('[data-puzzle-id="2"] .submit')).toHaveText('提交');
     const after = (await card.boundingBox())!;
     expect(after.height).toBeCloseTo(before.height, 1);
     expect(after.width).toBeCloseTo(before.width, 1);
     expect(
-      await card.locator('.card-status').evaluate((element) => element.getAnimations().length),
+      await card.locator('.submit').evaluate((element) => element.getAnimations().length),
     ).toBe(0);
-    const toast = page.locator('.solve-toast');
-    await expect(toast).toBeVisible();
-    await toast.focus();
-    const toastBounds = (await toast.boundingBox())!;
-    expect(toastBounds.x).toBeGreaterThanOrEqual(0);
-    expect(toastBounds.x + toastBounds.width).toBeLessThanOrEqual(width);
+    expect(await card.evaluate((element) => getComputedStyle(element, '::before').width)).toBe(
+      '6px',
+    );
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
     await card.evaluate((element) => element.scrollIntoView({ block: 'start' }));
-    await page.evaluate(() => window.scrollBy(0, -90));
+    await page.evaluate(() => window.scrollBy(0, -16));
     await page.screenshot({
-      path: `.agents/local/protect-privacy-${testInfo.project.name}-feedback-${width}.png`,
+      path: `.agents/local/protect-privacy-${testInfo.project.name}-annotation-${width}.png`,
     });
     if (width === 1280) {
       const accessibility = await new AxeBuilder({ page })
         .include('[data-puzzle-id="1"]')
-        .include('.solve-feedback')
         .exclude('[data-base-ui-focus-guard]')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze();
@@ -192,9 +192,7 @@ for (const width of [1280, 390, 320]) {
   });
 }
 
-test('the final answer opens the achievement and dismisses ordinary success feedback', async ({
-  page,
-}) => {
+test('the final answer opens the achievement and preserves the file reveal', async ({ page }) => {
   await page.goto('/protect-privacy/');
   await page.evaluate(({ key, value }) => localStorage.setItem(key, value), {
     key: progressKey(site.id),
@@ -205,17 +203,15 @@ test('the final answer opens the achievement and dismisses ordinary success feed
   await page.reload();
   await page.locator('#answer-33').fill('葛宇路');
   await page.locator('#answer-33').press('Enter');
-  await expect(page.locator('.solve-toast')).toContainText('已解 33/34');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 33);
   await page.locator('#answer-34').fill('V字仇杀队');
   await page.locator('#answer-34').press('Enter');
   await expect(page.locator('.completion-card')).toBeVisible();
   await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
-  await expect(page.locator('.solve-toast')).toHaveCount(0);
   await page.getByRole('button', { name: '关闭文件' }).click();
   await expect(page.locator('#answer-34')).toBeFocused();
   await page.reload();
   await expect(page.locator('progress')).toHaveJSProperty('value', 34);
-  await expect(page.locator('.solve-toast')).toHaveCount(0);
   await page.getByRole('button', { name: '查看文件' }).click();
   await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'true');
   await page.locator('.completion-reveal').click();

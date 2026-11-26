@@ -1,5 +1,4 @@
 import { useRef, useState, type CSSProperties } from 'react';
-import { Toast } from '@base-ui/react/toast';
 import { useQuiz } from '../../hooks/useQuiz';
 import type { PrivacyPuzzle } from './types';
 import { getAuthors, site } from './site';
@@ -12,7 +11,6 @@ const strips = ['87%', '46%', '100%', '67%', '35%'];
 export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const preview = new URLSearchParams(location.search).get('preview') === 'completion';
   const quiz = useQuiz({ storageId: site.id, puzzles, preview, getAuthors });
-  const feedback = Toast.useToastManager();
   const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>(
     preview ? 'revealed' : 'closed',
   );
@@ -31,16 +29,8 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
     quiz.solve(id, input);
     input?.focus({ preventScroll: true });
     if (solvedCount === quiz.total) {
-      feedback.close();
       fileReturnFocus.current = input;
       setFileView('revealed');
-    } else {
-      feedback.add({
-        id: 'solve-success',
-        title: `第 ${id} 题答对了`,
-        description: `已解 ${solvedCount}/${quiz.total}`,
-        priority: 'low',
-      });
     }
   }
 

@@ -13,12 +13,10 @@
   --file-heading: #ebe8df;
   --stamp: #962e34;
   --stamp-dark: #752529;
-  --stamp-paper: #f4e2db;
   --signal: #eddb58;
   --signal-paper: #f3e9aa;
   --redaction: #000;
   --restored: #f2e69c;
-  --solved-paper: #f4e2db;
   --font-text:
     'Noto Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei UI', system-ui, sans-serif;
   --font-title: 'Noto Serif SC', 'Songti SC', SimSun, serif;
@@ -536,14 +534,18 @@ main {
 }
 
 .card.solved {
-  --card-edge: var(--stamp);
-  --card-spine: var(--stamp);
-  --card: var(--solved-paper);
-  --file-heading: #ead0c8;
-  --edge: #c88884;
-  box-shadow:
-    inset 0 0 0 1px var(--stamp),
-    3px 3px #0004;
+  --card-spine: var(--stamp-dark);
+}
+
+.card.solved::before {
+  content: '';
+  position: absolute;
+  inset-block: -1px;
+  inset-inline-start: -3px;
+  inline-size: 6px;
+  z-index: 1;
+  background: var(--stamp-dark);
+  pointer-events: none;
 }
 
 .card-meta {
@@ -577,44 +579,6 @@ main {
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-.card-identity {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-}
-
-.card-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  flex: 0 0 4.25em;
-  block-size: 1.75rem;
-  border: 1px solid transparent;
-  color: var(--muted);
-  font-weight: var(--weight-semibold);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.card-status-check {
-  visibility: hidden;
-}
-
-.card.solved .card-status {
-  border-color: var(--stamp-dark);
-  background: var(--stamp);
-  color: var(--cover-white);
-  box-shadow:
-    inset 0 0 0 2px var(--stamp),
-    inset 0 0 0 3px #f7f4e966;
-}
-
-.card.solved .card-status-check {
-  visibility: visible;
 }
 
 .author {
@@ -815,9 +779,18 @@ input::placeholder {
   color: var(--muted);
 }
 
-.card.solved input::placeholder {
-  color: var(--muted);
-  opacity: 1;
+.card.solved input {
+  border-color: transparent;
+  border-block-end-color: var(--stamp);
+  background: transparent;
+  color: var(--stamp-dark);
+  font-family: var(--font-title);
+  font-weight: var(--weight-semibold);
+}
+
+.card.solved input:focus-visible {
+  outline: none;
+  box-shadow: 0 2px var(--stamp-dark);
 }
 
 button {
@@ -825,7 +798,10 @@ button {
 }
 
 .submit {
-  min-inline-size: 5em;
+  flex: 0 0 5rem;
+  inline-size: 5rem;
+  min-inline-size: 5rem;
+  min-block-size: 42px;
   padding: 0 0.875em;
   border: 1px solid var(--ink);
   border-radius: 0;
@@ -843,12 +819,17 @@ button {
 }
 
 .submit:disabled {
+  padding-inline: 4px;
+  border-width: 2px;
   border-color: var(--stamp);
-  background: var(--stamp-paper);
-  box-shadow:
-    inset 0 0 0 2px var(--stamp-paper),
-    inset 0 0 0 3px #962e3459;
+  border-radius: 2px 1px 4px 1px;
+  background: transparent;
   color: var(--stamp);
+  font-family: var(--font-title);
+  font-size: var(--text-section);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+  transform: rotate(-4deg);
   cursor: default;
 }
 
@@ -872,92 +853,6 @@ a:focus-visible {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-.solve-feedback {
-  position: fixed;
-  inset-block-start: max(16px, env(safe-area-inset-top));
-  inset-inline: 16px;
-  z-index: 90;
-  inline-size: min(30rem, calc(100% - 32px));
-  margin-inline: auto;
-  outline: none;
-  pointer-events: none;
-}
-
-.solve-toast {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 2rem;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 2px solid var(--stamp);
-  background: var(--stamp-paper);
-  color: var(--stamp-dark);
-  box-shadow: 3px 3px #0005;
-  pointer-events: auto;
-  touch-action: pan-x;
-}
-
-.solve-toast[data-limited] {
-  display: none;
-}
-
-.solve-toast-check {
-  display: grid;
-  place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  background: var(--stamp);
-  color: var(--cover-white);
-  font-weight: var(--weight-bold);
-}
-
-.solve-toast-content {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 8px;
-  line-height: var(--leading-ui);
-}
-
-.solve-toast-title {
-  font-size: var(--text-base);
-  font-weight: var(--weight-bold);
-}
-
-.solve-toast-description {
-  font-size: var(--text-small);
-  font-variant-numeric: tabular-nums;
-}
-
-.solve-toast-description::before {
-  content: '· ';
-}
-
-.solve-toast-close {
-  inline-size: 2rem;
-  block-size: 2rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font-size: var(--text-number);
-  line-height: 1;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .solve-toast {
-    transition:
-      opacity 160ms ease-out,
-      transform 160ms ease-out;
-  }
-
-  .solve-toast[data-starting-style],
-  .solve-toast[data-ending-style] {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
 }
 
 .completion-card {

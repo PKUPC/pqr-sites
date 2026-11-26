@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PuzzleCard as AnswerCard, type AnswerResult } from '../../../components/PuzzleCard';
 import type { QuizCardProps } from '../../../hooks/useQuiz';
 import type { PrivacyPuzzle } from '../types';
@@ -14,22 +14,35 @@ export function PuzzleCard({
   onSolve,
 }: QuizCardProps<PrivacyPuzzle>) {
   const card = useRef<HTMLElement>(null);
-  const stamp = useRef<HTMLSpanElement>(null);
+  const stamp = useRef<HTMLButtonElement>(null);
   const flash = useRef<Animation | undefined>(undefined);
-  useEffect(() => () => flash.current?.cancel(), []);
+  const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [recentCorrect, setRecentCorrect] = useState(false);
+  useEffect(
+    () => () => {
+      flash.current?.cancel();
+      clearTimeout(feedbackTimeout.current);
+    },
+    [],
+  );
   const authors = getAuthors(puzzle);
   const acceptedAnswers = [puzzle.answers]
     .flat()
     .flatMap((answer) => [answer, answer.replaceAll('-', '−')]);
   function onAttempt(result: AnswerResult) {
     flash.current?.cancel();
+    if (result === 'correct') {
+      setRecentCorrect(true);
+      clearTimeout(feedbackTimeout.current);
+      feedbackTimeout.current = setTimeout(() => setRecentCorrect(false), 1800);
+    }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (result === 'correct') {
       flash.current = stamp.current?.animate(
         [
-          { transform: 'translateY(-8px) scale(1.16) rotate(-8deg)', opacity: 0 },
-          { transform: 'translateY(0) scale(0.96) rotate(-2deg)', opacity: 1, offset: 0.7 },
-          { transform: 'none', opacity: 1 },
+          { transform: 'translateY(-8px) scale(1.16) rotate(-10deg)', opacity: 0 },
+          { transform: 'translateY(0) scale(0.96) rotate(-3deg)', opacity: 1, offset: 0.7 },
+          { transform: 'rotate(-4deg)', opacity: 1 },
         ],
         { duration: 300, easing: 'ease-out' },
       );
@@ -65,16 +78,8 @@ export function PuzzleCard({
             aria-labelledby={`puzzle-number-${puzzle.id} question-${puzzle.id}`}
           >
             <header className="card-meta">
-              <span className="card-identity">
-                <span className="card-number" id={`puzzle-number-${puzzle.id}`}>
-                  PQR-{String(site.edition).padStart(2, '0')}-{String(puzzle.id).padStart(2, '0')}
-                </span>
-                <span ref={stamp} className="card-status">
-                  <span className="card-status-check" aria-hidden="true">
-                    ✓
-                  </span>
-                  {solved ? '已解' : '未解'}
-                </span>
+              <span className="card-number" id={`puzzle-number-${puzzle.id}`}>
+                PQR-{String(site.edition).padStart(2, '0')}-{String(puzzle.id).padStart(2, '0')}
               </span>
               {puzzle.difficulty !== undefined && <Difficulty level={puzzle.difficulty} />}
               {authors.length > 0 && (
@@ -100,22 +105,27 @@ export function PuzzleCard({
               <input
                 {...answer.inputProps}
                 ref={answer.inputRef}
+                value={solved ? answer.referenceAnswer : answer.inputProps.value}
                 id={`answer-${puzzle.id}`}
                 type="text"
-                placeholder={
-                  solved ? answer.referenceAnswer : (puzzle.answerPlaceholder ?? '输入答案')
-                }
+                placeholder={puzzle.answerPlaceholder ?? '输入答案'}
                 autoComplete="off"
                 maxLength={100}
                 aria-invalid={Boolean(error)}
                 aria-describedby={solved ? `reference-${puzzle.id}` : `feedback-${puzzle.id}`}
               />
-              <button className="submit" disabled={solved}>
-                {solved ? '已解' : answer.recentIncorrect ? '错误！' : '提交'}
+              <button ref={stamp} className="submit" disabled={solved}>
+                {solved
+                  ? recentCorrect
+                    ? '答对了'
+                    : '已解'
+                  : answer.recentIncorrect
+                    ? '错误！'
+                    : '提交'}
               </button>
             </form>
             <div className="feedback" id={`feedback-${puzzle.id}`} role="status" aria-atomic="true">
-              {error}
+              {error || (recentCorrect ? `第 ${puzzle.id} 题答对了。` : '')}
             </div>
             {solved && (
               <span className="sr-only" id={`reference-${puzzle.id}`}>
