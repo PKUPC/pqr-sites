@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties } from 'react';
+import { Toast } from '@base-ui/react/toast';
 import { useQuiz } from '../../hooks/useQuiz';
 import type { PrivacyPuzzle } from './types';
 import { getAuthors, site } from './site';
@@ -11,6 +12,7 @@ const strips = ['87%', '46%', '100%', '67%', '35%'];
 export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const preview = new URLSearchParams(location.search).get('preview') === 'completion';
   const quiz = useQuiz({ storageId: site.id, puzzles, preview, getAuthors });
+  const feedback = Toast.useToastManager();
   const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>(
     preview ? 'revealed' : 'closed',
   );
@@ -24,10 +26,21 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const dlcTotal = puzzles.filter((puzzle) => puzzle.dlc).length;
 
   function solve(id: number, input: HTMLInputElement | null) {
+    if (preview || quiz.solved.has(id)) return;
+    const solvedCount = quiz.solved.size + 1;
     quiz.solve(id, input);
-    if (!quiz.solved.has(id) && quiz.solved.size + 1 === quiz.total) {
+    input?.focus({ preventScroll: true });
+    if (solvedCount === quiz.total) {
+      feedback.close();
       fileReturnFocus.current = input;
       setFileView('revealed');
+    } else {
+      feedback.add({
+        id: 'solve-success',
+        title: `第 ${id} 题答对了`,
+        description: `已解 ${solvedCount}/${quiz.total}`,
+        priority: 'low',
+      });
     }
   }
 
@@ -115,7 +128,7 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               题卷
             </h2>
             <p className="sort-notes">
-              <span>答对后，悬停黑条查看这一段，点按题面切换完整问句。</span>
+              <span>答对后，悬停题面查看完整原问句；点按固定，再点取消。</span>
               {quiz.hasDifficulty && <span>难度 1–5 级</span>}
             </p>
             <div className="sort-controls">

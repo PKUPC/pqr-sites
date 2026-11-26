@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { site } from '../../src/sites/protect-privacy/site';
+import puzzles from '../../src/sites/protect-privacy/puzzles.json' with { type: 'json' };
+import { encodeProgress, progressKey } from '../../src/lib/progress';
 
 test('fourth edition is linked from the archive home', async ({ page }, testInfo) => {
   await page.goto('/');
@@ -63,29 +65,161 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
   await expect(page.locator('progress')).toHaveJSProperty('value', 2);
 });
 
-test('redacted words preview on hover and whole questions toggle without reflow', async ({
+test('whole questions preview on hover and clicks pin the original without reflow', async ({
+  page,
+}) => {
+  await page.goto('/protect-privacy/?preview=completion');
+  await page.getByRole('button', { name: '关闭文件' }).click();
+  for (const id of [1, 14, 15, 34]) {
+    const puzzle = puzzles.find((entry) => entry.id === id)!;
+    const card = page.locator(`[data-puzzle-id="${id}"]`);
+    await expect(card).toHaveClass(/solved/);
+    const before = (await card.boundingBox())!;
+    const toggle = card.locator('.question-toggle');
+    await card.locator('.card-number').hover();
+    await toggle.hover({ position: { x: 20, y: 20 } });
+    await expect(toggle).toHaveClass(/show-original/);
+    await expect(toggle).toHaveAttribute('aria-label', puzzle.original);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await card.locator('.card-number').hover();
+    await expect(toggle).toHaveClass(/show-original/);
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle).toHaveClass(/show-original/);
+    await card.locator('.card-number').hover();
+    await expect(toggle).not.toHaveClass(/show-original/);
+    await page.mouse.move(0, 0);
+    await toggle.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(toggle).toHaveClass(/show-original/);
+    const after = (await card.boundingBox())!;
+    expect(after.height).toBeCloseTo(before.height, 1);
+    expect(after.width).toBeCloseTo(before.width, 1);
+    await toggle.press('Space');
+    await expect(toggle).not.toHaveClass(/show-original/);
+  }
+});
+
+test('correct answers show one updating toast and keep focus and persistent solved status', async ({
   page,
 }) => {
   await page.goto('/protect-privacy/');
-  await page.locator('#answer-1').fill('宫崎骏');
-  await page.locator('#answer-1').press('Enter');
   const card = page.locator('[data-puzzle-id="1"]');
-  const blank = card.locator('.question-blank').first();
-  await blank.hover();
-  await expect(blank).toHaveClass(/is-previewed/);
-  await expect(blank.locator('.redaction-preview')).toHaveText('千');
-  await card.locator('.card-number').hover();
-  await expect(blank).not.toHaveClass(/is-previewed/);
+  await expect(card.locator('.card-status')).toContainText('未解');
   const before = (await card.boundingBox())!;
-  const toggle = card.locator('.question-toggle');
-  await toggle.focus();
-  await toggle.press('Enter');
-  await expect(toggle).toHaveClass(/show-original/);
+  const paper = await card.evaluate((element) => getComputedStyle(element).backgroundColor);
+  await card.locator('input').fill('错误');
+  await card.locator('input').press('Enter');
+  await expect(page.locator('.solve-toast')).toHaveCount(0);
+  await card.locator('input').fill('宫崎骏');
+  await card.locator('.submit').click();
+  await expect(card.locator('input')).toBeFocused();
+  await expect(card.locator('.card-status')).toContainText('已解');
+  await expect(card).not.toHaveCSS('background-color', paper);
   const after = (await card.boundingBox())!;
   expect(after.height).toBeCloseTo(before.height, 1);
-  expect(after.width).toBeCloseTo(before.width, 1);
-  await toggle.press('Space');
-  await expect(toggle).not.toHaveClass(/show-original/);
+  const toast = page.locator('.solve-toast');
+  await expect(toast).toHaveCount(1);
+  await expect(toast).toContainText('第 1 题答对了');
+  await expect(toast).toContainText('已解 1/34');
+  await page.locator('#answer-2').fill('玄武门之变');
+  await page.locator('#answer-2').press('Enter');
+  await expect(toast).toHaveCount(1);
+  await expect(toast).toContainText('第 2 题答对了');
+  await expect(toast).toContainText('已解 2/34');
+  await expect(page.locator('#answer-2')).toBeFocused();
+  await expect(toast).toHaveCount(0, { timeout: 5000 });
+  await page.locator('#answer-2').press('Enter');
+  await expect(toast).toHaveCount(0);
+  await page.reload();
+  await expect(card.locator('.card-status')).toContainText('已解');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
+  await expect(toast).toHaveCount(0);
+  expect(
+    await card.locator('.card-status').evaluate((element) => element.getAnimations().length),
+  ).toBe(0);
+  await page.locator('#answer-3').fill('王浩然');
+  await page.locator('#answer-3').press('Enter');
+  await expect(toast).toBeVisible();
+  await page.getByRole('button', { name: '关闭答对提示' }).click();
+  await expect(toast).toHaveCount(0);
+});
+
+for (const width of [1280, 390, 320]) {
+  test(`solved and unsolved cards stay aligned at ${width}px with reduced motion`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/protect-privacy/');
+    const card = page.locator('[data-puzzle-id="1"]');
+    const before = (await card.boundingBox())!;
+    await card.locator('input').fill('宫崎骏');
+    await card.locator('input').press('Enter');
+    await expect(card.locator('.card-status')).toContainText('已解');
+    await expect(page.locator('[data-puzzle-id="2"] .card-status')).toContainText('未解');
+    const after = (await card.boundingBox())!;
+    expect(after.height).toBeCloseTo(before.height, 1);
+    expect(after.width).toBeCloseTo(before.width, 1);
+    expect(
+      await card.locator('.card-status').evaluate((element) => element.getAnimations().length),
+    ).toBe(0);
+    const toast = page.locator('.solve-toast');
+    await expect(toast).toBeVisible();
+    await toast.focus();
+    const toastBounds = (await toast.boundingBox())!;
+    expect(toastBounds.x).toBeGreaterThanOrEqual(0);
+    expect(toastBounds.x + toastBounds.width).toBeLessThanOrEqual(width);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await card.evaluate((element) => element.scrollIntoView({ block: 'start' }));
+    await page.evaluate(() => window.scrollBy(0, -90));
+    await page.screenshot({
+      path: `.agents/local/protect-privacy-${testInfo.project.name}-feedback-${width}.png`,
+    });
+    if (width === 1280) {
+      const accessibility = await new AxeBuilder({ page })
+        .include('[data-puzzle-id="1"]')
+        .include('.solve-feedback')
+        .exclude('[data-base-ui-focus-guard]')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(accessibility.violations).toEqual([]);
+    }
+  });
+}
+
+test('the final answer opens the achievement and dismisses ordinary success feedback', async ({
+  page,
+}) => {
+  await page.goto('/protect-privacy/');
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), {
+    key: progressKey(site.id),
+    value: encodeProgress(
+      new Set(puzzles.filter((puzzle) => puzzle.id <= 32).map((puzzle) => puzzle.id)),
+    ),
+  });
+  await page.reload();
+  await page.locator('#answer-33').fill('葛宇路');
+  await page.locator('#answer-33').press('Enter');
+  await expect(page.locator('.solve-toast')).toContainText('已解 33/34');
+  await page.locator('#answer-34').fill('V字仇杀队');
+  await page.locator('#answer-34').press('Enter');
+  await expect(page.locator('.completion-card')).toBeVisible();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
+  await expect(page.locator('.solve-toast')).toHaveCount(0);
+  await page.getByRole('button', { name: '关闭文件' }).click();
+  await expect(page.locator('#answer-34')).toBeFocused();
+  await page.reload();
+  await expect(page.locator('progress')).toHaveJSProperty('value', 34);
+  await expect(page.locator('.solve-toast')).toHaveCount(0);
+  await page.getByRole('button', { name: '查看文件' }).click();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'true');
+  await page.locator('.completion-reveal').click();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
 });
 
 test('file stays covered before completion and closes back to its trigger', async ({ page }) => {

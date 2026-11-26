@@ -18,7 +18,7 @@
   --signal-paper: #f3e9aa;
   --redaction: #000;
   --restored: #f2e69c;
-  --solved-paper: #f6f1e8;
+  --solved-paper: #f4e2db;
   --font-text:
     'Noto Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei UI', system-ui, sans-serif;
   --font-title: 'Noto Serif SC', 'Songti SC', SimSun, serif;
@@ -536,10 +536,14 @@ main {
 }
 
 .card.solved {
-  --card-edge: #bfb3a7;
+  --card-edge: var(--stamp);
   --card-spine: var(--stamp);
   --card: var(--solved-paper);
-  --file-heading: #eae2d7;
+  --file-heading: #ead0c8;
+  --edge: #c88884;
+  box-shadow:
+    inset 0 0 0 1px var(--stamp),
+    3px 3px #0004;
 }
 
 .card-meta {
@@ -572,6 +576,45 @@ main {
   font-weight: var(--weight-semibold);
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.card-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.card-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 0 0 4.25em;
+  block-size: 1.75rem;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.card-status-check {
+  visibility: hidden;
+}
+
+.card.solved .card-status {
+  border-color: var(--stamp-dark);
+  background: var(--stamp);
+  color: var(--cover-white);
+  box-shadow:
+    inset 0 0 0 2px var(--stamp),
+    inset 0 0 0 3px #f7f4e966;
+}
+
+.card.solved .card-status-check {
+  visibility: visible;
 }
 
 .author {
@@ -690,23 +733,8 @@ main {
   background: var(--redaction);
 }
 
-.question-restored::before,
-.question-blank.is-previewed::before {
+.question-restored::before {
   background: var(--restored);
-}
-
-.redaction-preview {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--ink);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.question-blank.is-previewed > .redaction-preview {
-  opacity: 1;
 }
 
 .question-toggle {
@@ -746,13 +774,6 @@ main {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .redaction-preview {
-    transition: opacity 120ms ease-out;
-  }
-  .question-toggle .question-blank::before {
-    transition: background-color 120ms ease-out;
-  }
-
   .question-toggle > .question-text {
     transition:
       clip-path 240ms cubic-bezier(0.2, 0.72, 0.24, 1),
@@ -851,6 +872,92 @@ a:focus-visible {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.solve-feedback {
+  position: fixed;
+  inset-block-start: max(16px, env(safe-area-inset-top));
+  inset-inline: 16px;
+  z-index: 90;
+  inline-size: min(30rem, calc(100% - 32px));
+  margin-inline: auto;
+  outline: none;
+  pointer-events: none;
+}
+
+.solve-toast {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 2rem;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--stamp);
+  background: var(--stamp-paper);
+  color: var(--stamp-dark);
+  box-shadow: 3px 3px #0005;
+  pointer-events: auto;
+  touch-action: pan-x;
+}
+
+.solve-toast[data-limited] {
+  display: none;
+}
+
+.solve-toast-check {
+  display: grid;
+  place-items: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  background: var(--stamp);
+  color: var(--cover-white);
+  font-weight: var(--weight-bold);
+}
+
+.solve-toast-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  line-height: var(--leading-ui);
+}
+
+.solve-toast-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+}
+
+.solve-toast-description {
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.solve-toast-description::before {
+  content: '· ';
+}
+
+.solve-toast-close {
+  inline-size: 2rem;
+  block-size: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-number);
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .solve-toast {
+    transition:
+      opacity 160ms ease-out,
+      transform 160ms ease-out;
+  }
+
+  .solve-toast[data-starting-style],
+  .solve-toast[data-ending-style] {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 .completion-card {
