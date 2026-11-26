@@ -10,10 +10,11 @@
 
 每期活动有自己的规则与例题。打开页面后，先阅读说明，再在题目下方输入答案并按回车提交；页面会提示答案是否正确，并记录解题进度。当前存档无需注册，进度保存在当前浏览器中，更换设备、域名或清除浏览器数据后不会自动同步。
 
-| 期数    | 主题      | 线上存档                                                |
-| ------- | --------- | ------------------------------------------------------- |
-| 第 2 期 | 缩略      | [开始游玩](https://eviations.pqr.pkupuzzle.art/)        |
-| 第 3 期 | unicode+1 | [开始游玩](https://unicode-plus-one.pqr.pkupuzzle.art/) |
+| 期数    | 主题      | 存档入口                                                     |
+| ------- | --------- | ------------------------------------------------------------ |
+| 第 2 期 | 缩略      | [开始游玩](https://eviations.pqr.pkupuzzle.art/)             |
+| 第 3 期 | unicode+1 | [开始游玩](https://unicode-plus-one.pqr.pkupuzzle.art/)      |
+| 第 4 期 | 保护隐私  | [本地源码](src/sites/protect-privacy/) · `/protect-privacy/` |
 
 ## 关于 P&KU
 
@@ -41,7 +42,7 @@ npm ci
 npm run dev
 ```
 
-本地开发地址为 `http://127.0.0.1:5173/`，两期页面分别位于 `/missing-abbreviations/` 和 `/unicode-plus-one/`。首页、每期页面均为独立 HTML 入口，无需客户端路由或服务器端 Node 服务。
+本地开发地址为 `http://127.0.0.1:5173/`，各期页面分别位于 `/missing-abbreviations/`、`/unicode-plus-one/` 和 `/protect-privacy/`。首页、每期页面均为独立 HTML 入口，无需客户端路由或服务器端 Node 服务。
 
 ```sh
 npm run format
@@ -52,6 +53,16 @@ npm run preview
 ```
 
 `format` 使用 Prettier 统一源码、脚本、测试与文档的排版；`format:check` 只检查不修改。`check` 包含格式检查、代码检查、逻辑测试、类型检查、生产构建和公开产物检查。浏览器测试针对构建后的页面；先运行 `check` 或 `build`。`preview` 默认在 `http://127.0.0.1:4173/` 预览。Chromium/WebKit 自动化与移动视口检查不能代替 QQ／微信内置浏览器的真机验收。
+
+## 本地维护入口
+
+当前仓库根目录为统一开发入口。第四期《保护隐私》的题库、样式和组件集中在 `src/sites/protect-privacy/`：
+
+- `puzzles.json` 维护题面、原问句、答案和固定难度。
+- `style.css` 维护本期视觉与字号。
+- `components/Difficulty.tsx` 维护五格斜切难度条。
+
+合并前的静态稿、截图和工作树保存在已忽略的 `.agents/local/merged-sources/`，其中保留原文件和暂存内容。
 
 ## 内容与代码组织
 
@@ -67,11 +78,11 @@ npm run preview
 - `src/lib/`、`src/types/`、`src/styles/`：通用判题与存储工具、数据类型、无障碍工具样式。
 - `src/home/`：统一入口首页，包含 HTML 入口，不加载各期完整题库；构建后输出根目录 `index.html`。
 - `scripts/prepare.mjs`：通用题库准备入口，负责读取、校验、调用可选转换器和输出生成数据。
-- `scripts/transformer/<site-id>.mjs`：各期专用的构建转换器。unicode+1 的字素分格与原问句计算位于 `unicode-plus-one.mjs`；开发时修改题库或转换器会重新生成数据。
+- `scripts/transformer/<site-id>.mjs`：各期专用的构建转换器。unicode+1 的字素分格与原问句计算位于 `unicode-plus-one.mjs`，保护隐私的黑条分格与原问句校验位于 `protect-privacy.mjs`；开发时修改题库或转换器会重新生成数据。
 - `public/<site>/`：明确放入构建结果的图标和分享图，勿存放文档、凭据或工作记录。
 - `src/generated/`、`dist/`：自动生成并被忽略。只将 `dist/` 作为未来静态发布的产物，不能部署整个仓库。
 
-构建目标地址为 `https://pqr.pkupuzzle.art/` 及上述两个子路径，canonical、Open Graph 与 Twitter 元信息直接写入构建 HTML。README 上方的子域名链接仍是现有线上地址；本地重构不会切换服务器、DNS 或重定向。
+构建目标地址为 `https://pqr.pkupuzzle.art/` 及各期子路径，canonical、Open Graph 与 Twitter 元信息直接写入构建 HTML。README 上方的子域名链接仍是现有线上地址；本地重构不会切换服务器、DNS 或重定向。
 
 进度按活动 ID 使用独立 localStorage 键，不主动过期、不跨设备同步。切换到新域名后不迁移旧域名进度；更改视觉或题序时不要更换存储键或重新编号题目。`?preview=completion` 只预览完成效果，不写入进度。
 

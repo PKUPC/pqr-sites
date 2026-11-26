@@ -1,0 +1,79 @@
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 8px 12px;
+  background: var(--card);
+  color: var(--ink);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.card input[aria-invalid='true'] {
+  border-color: var(--stamp);
+  border-width: 2px;
+}
+
+.archive-navigation {
+  margin-block-start: 24px;
+  font-size: var(--text-small);
+}
+
+.archive-navigation a {
+  color: var(--cover-muted);
+  text-underline-offset: 3px;
+}
+
+.archive-navigation a:focus-visible {
+  outline-color: var(--cover-white);
+}
+
+.storage-warning {
+  margin-block: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--edge);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.completion-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 0.8);
+}
+
+.completion-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  display: grid;
+  place-items: center;
+  padding: 20px 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.completion-card {
+  position: relative;
+  margin: 0;
+}
+
+@media (max-height: 430px) {
+  .completion-viewport {
+    align-items: start;
+  }
+  .completion-card {
+    max-block-size: none;
+  }
+}
+
+@supports not (grid-template-columns: subgrid) {
+  .staff-credits > div {
+    grid-template-columns: 5em minmax(0, 1fr);
+  }
+}

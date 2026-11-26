@@ -1,0 +1,46 @@
+import { site } from '../site';
+
+export function Introduction() {
+  return (
+    <section className="section intro" aria-label="PQR 介绍和招募">
+      <p>
+        <strong>欢迎来到 PQR！</strong>
+        <br />
+        这是 P&amp;KU 群在每周五晚 22:00 举行的 Quiz/微型谜题企划 P&amp;ku Quiz Research！
+        本期主题是<span className="issue-name">「{site.title}」</span>。
+      </p>
+      <p>
+        <strong>P&amp;ku Quiz Research Secret Team 招募中！</strong>
+        如果您愿意建设每周五的 PQR 企划（P&amp;ku Quiz Research），无论是出题、提供企划灵感，
+        亦或是帮助归档与设计每次的内容，都欢迎私聊加入 PQRST，和我们共同发现变体 Quiz 的乐趣——
+      </p>
+      <div className="intro-footer">
+        <p className="contacts">
+          <span>QQ 群号：649943168</span>
+          <span>公众号：PKU谜协</span>
+        </p>
+        <dl className="staff-credits">
+          <div>
+            <dt>策划</dt>
+            <dd>proton</dd>
+          </div>
+          <div>
+            <dt>谜题</dt>
+            <dd>proton，ClashのRPC，CALS，Winfrid</dd>
+          </div>
+          <div>
+            <dt>网站设计</dt>
+            <dd>浅眠</dd>
+          </div>
+          <div>
+            <dt>技术支持</dt>
+            <dd>JCarlson</dd>
+          </div>
+        </dl>
+      </div>
+      <p className="rules" id="rules">
+        <strong>规则：</strong>根据题面还原被遮住的文字，输入完整问句所问的答案。
+      </p>
+    </section>
+  );
+}

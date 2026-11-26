@@ -14,5 +14,13 @@
     "count": 20,
     "description": "还原 Unicode 码位加一后的问句，再回答问题。挑战来自 3 位作者的 20 道文字谜题，支持提示、难度排序、原问句切换和本地进度保存。",
     "themeColor": "#963a31"
+  },
+  {
+    "id": "protect-privacy",
+    "title": "保护隐私",
+    "edition": 4,
+    "count": 34,
+    "description": "根据黑条和上下文还原问句，再回答问题。34 道谜题，包含 15 道 DLC，答对后展开原问句，支持题面切换、难度排序和本地进度保存。",
+    "themeColor": "#1c1c19"
   }
 ]

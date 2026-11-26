@@ -2,15 +2,14 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import unicode from '../../src/sites/unicode-plus-one/puzzles.json' with { type: 'json' };
 
-test('home exposes both real document routes and metadata without JavaScript', async ({
-  browser,
-}) => {
+test('home exposes real document routes and metadata without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   for (const [slug, title] of [
     ['', 'PQR'],
     ['missing-abbreviations/', '缩略'],
     ['unicode-plus-one/', 'unicode+1'],
+    ['protect-privacy/', '保护隐私'],
   ]) {
     await page.goto('/' + slug);
     await expect(page).toHaveTitle(new RegExp(title.replace('+', '\\+')));

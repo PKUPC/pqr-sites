@@ -15,20 +15,20 @@ export function useQuiz<T extends Puzzle>({
   storageId,
   puzzles,
   preview = false,
+  getAuthors = (puzzle) => (puzzle.author ? [puzzle.author] : []),
 }: {
   storageId: string;
   puzzles: T[];
   preview?: boolean;
+  getAuthors?: (puzzle: T) => string[];
 }) {
   const progress = useProgress(storageId, puzzles, preview);
   const [author, setAuthor] = useState('');
   const [order, setOrder] = useState('original');
   const returnFocus = useRef<HTMLInputElement | null>(null);
-  const authors = [
-    ...new Set(
-      puzzles.map((puzzle) => puzzle.author).filter((name): name is string => Boolean(name)),
-    ),
-  ].sort((a, b) => a.localeCompare(b, 'zh-CN'));
+  const authors = [...new Set(puzzles.flatMap(getAuthors))].sort((a, b) =>
+    a.localeCompare(b, 'zh-CN'),
+  );
   const hasDifficulty = puzzles.some((puzzle) => puzzle.difficulty !== undefined);
   const sorted = puzzles.map((puzzle, index) => ({ puzzle, index }));
   if (order !== 'original')
@@ -60,7 +60,7 @@ export function useQuiz<T extends Puzzle>({
     items: sorted.map((item) => ({
       ...item,
       solved: progress.solved.has(item.puzzle.id),
-      hidden: Boolean(author) && item.puzzle.author !== author,
+      hidden: Boolean(author) && !getAuthors(item.puzzle).includes(author),
     })),
   };
 }
