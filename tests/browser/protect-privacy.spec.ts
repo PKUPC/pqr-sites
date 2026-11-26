@@ -34,7 +34,9 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
   await expect(card.locator('.submit')).toHaveText('错误！');
   await card.locator('input').fill('宫崎骏');
   await card.locator('input').press('Enter');
-  await expect(card.locator('input')).toHaveAttribute('readonly', '');
+  await expect(card.locator('input')).toBeEditable();
+  await expect(card.locator('input')).toHaveAttribute('placeholder', '宫崎骏');
+  await expect(card.locator('.submit')).toBeEnabled();
   await expect(card.locator('.submit')).toHaveText('已解');
   await page.reload();
   await expect(card).toHaveClass(/solved/);
@@ -65,7 +67,7 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
   await expect(page.locator('progress')).toHaveJSProperty('value', 2);
 });
 
-test('whole questions preview on hover and clicks pin the original without reflow', async ({
+test('solved questions start expanded and toggle without hover changes or reflow', async ({
   page,
 }) => {
   await page.goto('/protect-privacy/?preview=completion');
@@ -76,38 +78,59 @@ test('whole questions preview on hover and clicks pin the original without reflo
     await expect(card).toHaveClass(/solved/);
     const before = (await card.boundingBox())!;
     const toggle = card.locator('.question-toggle');
+    await expect(toggle).toHaveClass(/show-original/);
+    await expect(toggle).toHaveAttribute('aria-label', puzzle.original);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
     await card.locator('.card-number').hover();
     await toggle.hover({ position: { x: 20, y: 20 } });
     await expect(toggle).toHaveClass(/show-original/);
-    await expect(toggle).toHaveAttribute('aria-label', puzzle.original);
+    await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle).not.toHaveClass(/show-original/);
+    await expect(toggle).toHaveAttribute('aria-label', puzzle.question);
+    await card.locator('.card-number').hover();
+    await toggle.hover({ position: { x: 20, y: 20 } });
+    await expect(toggle).not.toHaveClass(/show-original/);
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await card.locator('.card-number').hover();
     await expect(toggle).toHaveClass(/show-original/);
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await expect(toggle).toHaveClass(/show-original/);
-    await card.locator('.card-number').hover();
-    await expect(toggle).not.toHaveClass(/show-original/);
     await page.mouse.move(0, 0);
     await toggle.press('Enter');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(toggle).toHaveClass(/show-original/);
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(toggle).not.toHaveClass(/show-original/);
     const after = (await card.boundingBox())!;
     expect(after.height).toBeCloseTo(before.height, 1);
     expect(after.width).toBeCloseTo(before.width, 1);
     await toggle.press('Space');
-    await expect(toggle).not.toHaveClass(/show-original/);
+    await expect(toggle).toHaveClass(/show-original/);
   }
 });
 
-test('correct answers show card feedback and keep selectable answers and progress', async ({
+test('solved answers become editable placeholders and repeated submissions preserve progress', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/protect-privacy/');
   const card = page.locator('[data-puzzle-id="1"]');
+  await card.evaluate((element) => {
+    element.addEventListener('animationstart', (event) => {
+      const name = (event as AnimationEvent).animationName;
+      element.setAttribute(
+        'data-played-animations',
+        `${element.getAttribute('data-played-animations') ?? ''} ${name}`,
+      );
+    });
+    element.addEventListener('transitionrun', (event) => {
+      if (event.target instanceof Element && event.target.matches('.card-meta')) {
+        element.setAttribute(
+          'data-header-transitions',
+          `${element.getAttribute('data-header-transitions') ?? ''} ${(event as TransitionEvent).propertyName}`,
+        );
+      }
+    });
+  });
   await expect(card.locator('.submit')).toHaveText('提交');
+  await expect(card.locator('.question-original')).toHaveCount(0);
   const before = (await card.boundingBox())!;
   const paper = await card.evaluate((element) => getComputedStyle(element).backgroundColor);
   await card.locator('input').fill('错误');
@@ -118,7 +141,15 @@ test('correct answers show card feedback and keep selectable answers and progres
   await expect(card.locator('input')).toBeFocused();
   await expect(card.locator('.submit')).toHaveText('答对了');
   await expect(card.locator('.feedback')).toHaveText('第 1 题答对了。');
-  await expect(card.locator('input')).toHaveValue('宫崎骏');
+  await expect(card.locator('input')).toHaveValue('');
+  await expect(card.locator('input')).toHaveAttribute('placeholder', '宫崎骏');
+  await expect(card.locator('input')).toBeEditable();
+  await expect(card.locator('.submit')).toBeEnabled();
+  await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
+  await expect(card).toHaveAttribute('data-played-animations', /answer-reveal/);
+  await expect(card).toHaveAttribute('data-played-animations', /answer-unmask/);
+  await expect(card).toHaveAttribute('data-played-animations', /answer-confirm/);
+  await expect(card).toHaveAttribute('data-header-transitions', /background-color/);
   await expect(card).toHaveCSS('background-color', paper);
   const after = (await card.boundingBox())!;
   expect(after.height).toBeCloseTo(before.height, 1);
@@ -132,18 +163,30 @@ test('correct answers show card feedback and keep selectable answers and progres
   await expect(card.locator('.feedback')).toBeEmpty();
   await expect(page.locator('#feedback-2')).toBeEmpty();
   await page.locator('#answer-2').press('Enter');
-  await expect(page.locator('#feedback-2')).toBeEmpty();
-  await card.locator('input').press('ControlOrMeta+A');
-  expect(
-    await card
-      .locator('input')
-      .evaluate((element: HTMLInputElement) =>
-        element.value.slice(element.selectionStart ?? 0, element.selectionEnd ?? 0),
-      ),
-  ).toBe('宫崎骏');
+  await expect(page.locator('#feedback-2')).toHaveText('请先输入答案。');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
+  await card.locator('input').fill('错误答案');
+  await card.locator('.submit').click();
+  await expect(card.locator('.submit')).toHaveText('错误！');
+  await expect(card).toHaveClass(/solved/);
+  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
+  await card.locator('input').fill('宮崎駿');
+  await card.locator('.submit').click();
+  await expect(card.locator('.submit')).toHaveText('答对了');
+  await expect(card.locator('input')).toBeFocused();
+  await expect(card.locator('input')).toHaveValue('');
+  await expect(card.locator('input')).toHaveAttribute('placeholder', '宫崎骏');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 2);
+  await card.locator('.question-toggle').press('Enter');
+  await expect(card.locator('.question-toggle')).not.toHaveClass(/show-original/);
   await page.reload();
   await expect(card.locator('.submit')).toHaveText('已解');
-  await expect(card.locator('input')).toHaveValue('宫崎骏');
+  await expect(card.locator('input')).toHaveValue('');
+  await expect(card.locator('input')).toHaveAttribute('placeholder', '宫崎骏');
+  await expect(card.locator('input')).toBeEditable();
+  await expect(card.locator('.submit')).toBeEnabled();
+  await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
+  await expect(card).not.toHaveClass(/is-newly-solved/);
   await expect(page.locator('progress')).toHaveJSProperty('value', 2);
   await expect(card.locator('.feedback')).toBeEmpty();
   expect(await card.locator('.submit').evaluate((element) => element.getAnimations().length)).toBe(
@@ -160,26 +203,88 @@ for (const width of [1280, 390, 320]) {
     await page.goto('/protect-privacy/');
     const card = page.locator('[data-puzzle-id="1"]');
     const before = (await card.boundingBox())!;
+    const detailStyles = () =>
+      card.evaluate((element) => {
+        const selectors = [
+          '.card-meta',
+          '.card-number',
+          '.author',
+          '.difficulty',
+          '.question-title h2',
+          '.question-toggle',
+          'input',
+          '.submit',
+        ];
+        const properties = [
+          'font-family',
+          'font-size',
+          'font-weight',
+          'line-height',
+          'letter-spacing',
+          'padding',
+          'margin',
+          'border-width',
+          'border-style',
+          'border-radius',
+          'box-shadow',
+          'transform',
+        ];
+        const cardRect = element.getBoundingClientRect();
+        return selectors.map((selector) => {
+          const node = element.querySelector(selector)!;
+          const style = getComputedStyle(node);
+          const rect = node.getBoundingClientRect();
+          return {
+            selector,
+            styles: Object.fromEntries(
+              properties.map((property) => [property, style.getPropertyValue(property)]),
+            ),
+            bounds: [rect.x - cardRect.x, rect.y - cardRect.y, rect.width, rect.height].map(
+              (value) => Math.round(value * 10) / 10,
+            ),
+          };
+        });
+      });
+    const unsolvedDetails = await detailStyles();
+    const headerColor = await card
+      .locator('.card-meta')
+      .evaluate((element) => getComputedStyle(element).backgroundColor);
+    const inputColor = await card
+      .locator('input')
+      .evaluate((element) => getComputedStyle(element).backgroundColor);
     await card.locator('input').fill('宫崎骏');
     await card.locator('input').press('Enter');
     await expect(card.locator('.submit')).toHaveText('已解');
+    await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
+    await expect(card.locator('.submit')).toHaveCSS('transform', 'none');
+    await expect(card.locator('.submit')).toHaveCSS('border-top-width', '1px');
+    await expect(card.locator('.card-meta')).not.toHaveCSS('background-color', headerColor);
+    await expect(card.locator('input')).toHaveCSS('background-color', inputColor);
+    await expect(card.locator('input')).toHaveValue('');
+    await expect(card.locator('input')).toHaveAttribute('placeholder', '宫崎骏');
+    await expect(card.locator('.submit')).toBeEnabled();
     await expect(page.locator('[data-puzzle-id="2"] .submit')).toHaveText('提交');
     const after = (await card.boundingBox())!;
     expect(after.height).toBeCloseTo(before.height, 1);
     expect(after.width).toBeCloseTo(before.width, 1);
-    expect(
-      await card.locator('.submit').evaluate((element) => element.getAnimations().length),
-    ).toBe(0);
-    expect(await card.evaluate((element) => getComputedStyle(element, '::before').width)).toBe(
-      '6px',
+    expect(await card.evaluate((element) => element.getAnimations({ subtree: true }).length)).toBe(
+      0,
     );
+    expect(await detailStyles()).toEqual(unsolvedDetails);
+    await expect(card.locator('.question-toggle')).not.toHaveAttribute('title');
+    await card.locator('.question-toggle').press('Enter');
+    await expect(card.locator('.question-toggle')).not.toHaveClass(/show-original/);
+    expect(await detailStyles()).toEqual(unsolvedDetails);
+    await card.locator('.question-toggle').press('Space');
+    await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
     await card.evaluate((element) => element.scrollIntoView({ block: 'start' }));
     await page.evaluate(() => window.scrollBy(0, -16));
+    await card.locator('.card-number').click();
     await page.screenshot({
-      path: `.agents/local/protect-privacy-${testInfo.project.name}-annotation-${width}.png`,
+      path: `.agents/local/protect-privacy-${testInfo.project.name}-consistent-${width}.png`,
     });
     if (width === 1280) {
       const accessibility = await new AxeBuilder({ page })
@@ -286,10 +391,11 @@ test('touch toggles question layers and the completion file', async ({ browser }
     await page.locator('#answer-1').fill('宫崎骏');
     await page.locator('#answer-1').press('Enter');
     const question = page.locator('#question-1 .question-toggle');
-    await question.tap();
     await expect(question).toHaveClass(/show-original/);
     await question.tap();
     await expect(question).not.toHaveClass(/show-original/);
+    await question.tap();
+    await expect(question).toHaveClass(/show-original/);
     await page.goto('/protect-privacy/?preview=completion');
     const reveal = page.locator('.completion-reveal');
     await reveal.tap();
@@ -316,11 +422,14 @@ test('new DLC authors and Latin question layers keep their layout and progress',
   await expect(card).toHaveClass(/solved/);
   const before = (await card.boundingBox())!;
   const toggle = card.locator('.question-toggle');
-  await toggle.press('Enter');
   await expect(toggle).toHaveAttribute(
     'aria-label',
     /Voila! In view, a humble vaudevillian veteran/,
   );
+  await toggle.press('Enter');
+  await expect(toggle).not.toHaveClass(/show-original/);
+  await toggle.press('Space');
+  await expect(toggle).toHaveClass(/show-original/);
   const after = (await card.boundingBox())!;
   expect(after.height).toBeCloseTo(before.height, 1);
   expect(after.width).toBeCloseTo(before.width, 1);

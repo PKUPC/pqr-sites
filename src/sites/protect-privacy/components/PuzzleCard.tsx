@@ -14,7 +14,6 @@ export function PuzzleCard({
   onSolve,
 }: QuizCardProps<PrivacyPuzzle>) {
   const card = useRef<HTMLElement>(null);
-  const stamp = useRef<HTMLButtonElement>(null);
   const flash = useRef<Animation | undefined>(undefined);
   const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [recentCorrect, setRecentCorrect] = useState(false);
@@ -31,22 +30,13 @@ export function PuzzleCard({
     .flatMap((answer) => [answer, answer.replaceAll('-', '−')]);
   function onAttempt(result: AnswerResult) {
     flash.current?.cancel();
+    clearTimeout(feedbackTimeout.current);
+    setRecentCorrect(result === 'correct');
     if (result === 'correct') {
-      setRecentCorrect(true);
-      clearTimeout(feedbackTimeout.current);
       feedbackTimeout.current = setTimeout(() => setRecentCorrect(false), 1800);
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (result === 'correct') {
-      flash.current = stamp.current?.animate(
-        [
-          { transform: 'translateY(-8px) scale(1.16) rotate(-10deg)', opacity: 0 },
-          { transform: 'translateY(0) scale(0.96) rotate(-3deg)', opacity: 1, offset: 0.7 },
-          { transform: 'rotate(-4deg)', opacity: 1 },
-        ],
-        { duration: 300, easing: 'ease-out' },
-      );
-    } else if (result === 'incorrect') {
+    if (result === 'incorrect') {
       flash.current = card.current?.animate(
         [{ backgroundColor: '#ff808a', borderColor: '#ae1530' }, {}],
         { duration: 420, easing: 'ease-out' },
@@ -60,7 +50,6 @@ export function PuzzleCard({
       solved={solved}
       onSolve={onSolve}
       onAttempt={onAttempt}
-      lockWhenSolved
     >
       {(answer) => {
         const error =
@@ -72,7 +61,7 @@ export function PuzzleCard({
         return (
           <article
             ref={card}
-            className={`card${puzzle.wide ? ' card-wide' : ''}${solved ? ' solved' : ''}`}
+            className={`card${puzzle.wide ? ' card-wide' : ''}${solved ? ' solved' : ''}${recentCorrect ? ' is-newly-solved' : ''}`}
             hidden={hidden}
             data-puzzle-id={puzzle.id}
             aria-labelledby={`puzzle-number-${puzzle.id} question-${puzzle.id}`}
@@ -105,23 +94,26 @@ export function PuzzleCard({
               <input
                 {...answer.inputProps}
                 ref={answer.inputRef}
-                value={solved ? answer.referenceAnswer : answer.inputProps.value}
                 id={`answer-${puzzle.id}`}
                 type="text"
-                placeholder={puzzle.answerPlaceholder ?? '输入答案'}
+                placeholder={
+                  solved ? answer.referenceAnswer : (puzzle.answerPlaceholder ?? '输入答案')
+                }
                 autoComplete="off"
                 maxLength={100}
                 aria-invalid={Boolean(error)}
-                aria-describedby={solved ? `reference-${puzzle.id}` : `feedback-${puzzle.id}`}
+                aria-describedby={
+                  error || !solved ? `feedback-${puzzle.id}` : `reference-${puzzle.id}`
+                }
               />
-              <button ref={stamp} className="submit" disabled={solved}>
-                {solved
-                  ? recentCorrect
+              <button className="submit">
+                {answer.recentIncorrect
+                  ? '错误！'
+                  : recentCorrect
                     ? '答对了'
-                    : '已解'
-                  : answer.recentIncorrect
-                    ? '错误！'
-                    : '提交'}
+                    : solved
+                      ? '已解'
+                      : '提交'}
               </button>
             </form>
             <div className="feedback" id={`feedback-${puzzle.id}`} role="status" aria-atomic="true">

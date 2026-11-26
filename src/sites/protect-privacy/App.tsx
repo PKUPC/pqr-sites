@@ -24,10 +24,10 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const dlcTotal = puzzles.filter((puzzle) => puzzle.dlc).length;
 
   function solve(id: number, input: HTMLInputElement | null) {
+    input?.focus({ preventScroll: true });
     if (preview || quiz.solved.has(id)) return;
     const solvedCount = quiz.solved.size + 1;
     quiz.solve(id, input);
-    input?.focus({ preventScroll: true });
     if (solvedCount === quiz.total) {
       fileReturnFocus.current = input;
       setFileView('revealed');
@@ -118,7 +118,7 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               题卷
             </h2>
             <p className="sort-notes">
-              <span>答对后，悬停题面查看完整原问句；点按固定，再点取消。</span>
+              <span>答对后展开完整原问句，点按题面可切换回黑块题面。</span>
               {quiz.hasDifficulty && <span>难度 1–5 级</span>}
             </p>
             <div className="sort-controls">

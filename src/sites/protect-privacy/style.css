@@ -13,6 +13,7 @@
   --file-heading: #ebe8df;
   --stamp: #962e34;
   --stamp-dark: #752529;
+  --stamp-paper: #f4e2db;
   --signal: #eddb58;
   --signal-paper: #f3e9aa;
   --redaction: #000;
@@ -521,7 +522,6 @@ main {
   isolation: isolate;
   min-width: 0;
   padding: 0 var(--inset) 16px;
-  border-inline-start: 3px solid var(--card-spine, var(--field-edge));
 }
 
 .card-wide {
@@ -534,18 +534,7 @@ main {
 }
 
 .card.solved {
-  --card-spine: var(--stamp-dark);
-}
-
-.card.solved::before {
-  content: '';
-  position: absolute;
-  inset-block: -1px;
-  inset-inline-start: -3px;
-  inline-size: 6px;
-  z-index: 1;
-  background: var(--stamp-dark);
-  pointer-events: none;
+  --file-heading: var(--stamp-dark);
 }
 
 .card-meta {
@@ -561,6 +550,22 @@ main {
   color: var(--muted);
   font-size: var(--text-small);
   line-height: var(--leading-ui);
+}
+
+.card.solved .card-meta {
+  --field-edge: var(--cover-muted);
+  border-block-end-color: var(--file-heading);
+  color: var(--cover-white);
+}
+
+.card.solved .card-number {
+  background: var(--cover-white);
+  color: var(--file-heading);
+}
+
+.card.solved .difficulty {
+  --difficulty-ink: var(--cover-white);
+  color: var(--cover-white);
 }
 
 .card-meta > .difficulty {
@@ -710,6 +715,8 @@ main {
   background: transparent;
   color: inherit;
   font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
   text-align: start;
 }
 
@@ -738,6 +745,26 @@ main {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .card-meta,
+  .card-number {
+    transition:
+      background-color 420ms ease-out,
+      color 420ms ease-out,
+      border-color 420ms ease-out;
+  }
+
+  .card.is-newly-solved .question-original {
+    animation: answer-reveal 440ms cubic-bezier(0.2, 0.72, 0.24, 1);
+  }
+
+  .card.is-newly-solved .question-encoded {
+    animation: answer-unmask 440ms cubic-bezier(0.2, 0.72, 0.24, 1);
+  }
+
+  .card.is-newly-solved .submit {
+    animation: answer-confirm 440ms ease-out;
+  }
+
   .question-toggle > .question-text {
     transition:
       clip-path 240ms cubic-bezier(0.2, 0.72, 0.24, 1),
@@ -747,6 +774,33 @@ main {
   .question-toggle:not(.show-original) > .question-encoded,
   .question-toggle.show-original > .question-original {
     transition-delay: 0s;
+  }
+}
+
+@keyframes answer-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes answer-unmask {
+  from {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+  }
+  to {
+    clip-path: inset(0 0 0 100%);
+    visibility: visible;
+  }
+}
+
+@keyframes answer-confirm {
+  35% {
+    background-color: var(--signal-paper);
+    box-shadow: 0 0 0 3px #962e3426;
   }
 }
 
@@ -779,18 +833,9 @@ input::placeholder {
   color: var(--muted);
 }
 
-.card.solved input {
-  border-color: transparent;
-  border-block-end-color: var(--stamp);
-  background: transparent;
-  color: var(--stamp-dark);
-  font-family: var(--font-title);
-  font-weight: var(--weight-semibold);
-}
-
-.card.solved input:focus-visible {
-  outline: none;
-  box-shadow: 0 2px var(--stamp-dark);
+.card.solved input::placeholder {
+  color: #76736d;
+  opacity: 1;
 }
 
 button {
@@ -801,7 +846,6 @@ button {
   flex: 0 0 5rem;
   inline-size: 5rem;
   min-inline-size: 5rem;
-  min-block-size: 42px;
   padding: 0 0.875em;
   border: 1px solid var(--ink);
   border-radius: 0;
@@ -818,18 +862,23 @@ button {
   background: var(--redaction);
 }
 
-.submit:disabled {
-  padding-inline: 4px;
-  border-width: 2px;
+.card.solved .submit {
+  border-color: var(--stamp-dark);
+  background: var(--stamp-dark);
+  color: var(--cover-white);
+}
+
+.card.solved .submit:hover {
   border-color: var(--stamp);
-  border-radius: 2px 1px 4px 1px;
-  background: transparent;
-  color: var(--stamp);
-  font-family: var(--font-title);
-  font-size: var(--text-section);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.08em;
-  transform: rotate(-4deg);
+  background: var(--stamp);
+}
+
+.card.solved .submit:active {
+  background: var(--stamp-dark);
+}
+
+.submit:disabled {
+  opacity: 1;
   cursor: default;
 }
 
