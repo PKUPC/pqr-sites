@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { useQuiz } from '../../hooks/useQuiz';
+import { useCompletion } from '../../components/Completion';
 import type { PrivacyPuzzle } from './types';
 import { getAuthors, site } from './site';
 import { Introduction } from './components/Introduction';
@@ -12,9 +13,8 @@ const strips = ['87%', '46%', '100%', '67%', '35%'];
 export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const preview = new URLSearchParams(location.search).get('preview') === 'completion';
   const quiz = useQuiz({ storageId: site.id, puzzles, preview, getAuthors });
-  const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>(
-    preview ? 'revealed' : 'closed',
-  );
+  const completion = useCompletion({ storageId: site.id, complete: quiz.complete, preview });
+  const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>('closed');
   const [titleCovered, setTitleCovered] = useState(false);
   const [titleToggled, setTitleToggled] = useState(false);
   const fileButton = useRef<HTMLButtonElement>(null);
@@ -31,7 +31,6 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
     quiz.solve(id, input);
     if (solvedCount === quiz.total) {
       fileReturnFocus.current = input;
-      setFileView('revealed');
     }
   }
 
@@ -179,13 +178,16 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
         </main>
       </div>
       <CompletionFile
-        open={fileView !== 'closed'}
+        open={completion.open || fileView !== 'closed'}
         covered={!quiz.complete || fileView === 'covered'}
         complete={quiz.complete}
         total={quiz.total}
         dlcTotal={dlcTotal}
         onCoverChange={(covered) => setFileView(covered ? 'covered' : 'revealed')}
-        onDismiss={() => setFileView('closed')}
+        onDismiss={() => {
+          if (completion.open) completion.onDismiss();
+          setFileView('closed');
+        }}
         returnFocus={() =>
           fileReturnFocus.current ??
           shell.current?.querySelector<HTMLInputElement>('.card:not([hidden]) input') ??

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { completionSeenKey, encodeProgress, progressKey } from '../../src/lib/progress';
 import abbreviations from '../../src/sites/missing-abbreviations/puzzles.json' with { type: 'json' };
 import unicode from '../../src/sites/unicode-plus-one/puzzles.json' with { type: 'json' };
+import privacy from '../../src/sites/protect-privacy/puzzles.json' with { type: 'json' };
 
 for (const [slug, puzzles] of [
   ['missing-abbreviations', abbreviations],
@@ -107,3 +108,52 @@ for (const [slug, puzzles] of [
     }
   });
 }
+
+test('fourth edition uses shared once-only completion without consuming it in the covered preview', async ({
+  page,
+}) => {
+  const key = progressKey('protect-privacy');
+  const seenKey = completionSeenKey('protect-privacy');
+  await page.goto('/protect-privacy/');
+  const file = page.locator('.completion-card');
+  const openFile = page.getByRole('button', { name: '查看文件', exact: true });
+  await openFile.click();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'true');
+  await page.getByRole('button', { name: '关闭文件' }).click();
+  expect(await page.evaluate((key) => localStorage.getItem(key), seenKey)).toBeNull();
+  await page.evaluate(({ key, progress }) => localStorage.setItem(key, progress), {
+    key,
+    progress: encodeProgress(new Set(privacy.slice(0, -1).map((puzzle) => puzzle.id))),
+  });
+  await page.reload();
+  await expect(file).not.toBeVisible();
+  const last = privacy[privacy.length - 1];
+  await page.locator(`#answer-${last.id}`).fill([last.answers].flat()[0]);
+  await page.locator(`#answer-${last.id}`).press('Enter');
+  await expect(file).toBeVisible();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
+  expect(await page.evaluate((key) => localStorage.getItem(key), seenKey)).toBe('1');
+  await page.reload();
+  await expect(page.getByRole('progressbar')).toHaveJSProperty('value', privacy.length);
+  await expect(file).not.toBeVisible();
+  await openFile.click();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'true');
+  await page.locator('.completion-reveal').click();
+  await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
+  await page.keyboard.press('Escape');
+  await expect(openFile).toBeFocused();
+
+  // Existing completed progress gets its first display record when revisited.
+  await page.evaluate((key) => localStorage.removeItem(key), seenKey);
+  await page.reload();
+  await expect(file).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), seenKey)).toBe('1');
+  await page.reload();
+  await expect(file).not.toBeVisible();
+  await page.goto('/protect-privacy/?preview=completion');
+  await expect(file).toBeVisible();
+  await page.evaluate((key) => localStorage.removeItem(key), seenKey);
+  await page.reload();
+  await expect(file).toBeVisible();
+  expect(await page.evaluate((key) => localStorage.getItem(key), seenKey)).toBeNull();
+});
