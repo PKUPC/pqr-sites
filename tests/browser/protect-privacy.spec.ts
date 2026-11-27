@@ -409,6 +409,74 @@ test('touch toggles question layers and the completion file', async ({ browser }
   }
 });
 
+test('all English questions use natural word layout and keep both layers aligned', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/protect-privacy/?preview=completion');
+  await page.getByRole('button', { name: '关闭文件' }).click();
+  const expectedWords: Record<number, string[]> = {
+    14: ['J', 'Q', 'F'],
+    19: ['proton', 'CALS', 'Winfrid', 'ClashのRPC'],
+    20: ['i'],
+    27: ['“tiger”'],
+    34: ['"Voila!', 'vaudevillian'],
+  };
+  for (const [id, expected] of Object.entries(expectedWords)) {
+    const card = page.locator(`[data-puzzle-id="${id}"]`);
+    const readLayout = (layer: string) =>
+      card.locator(layer).evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const rect = (node: Element) => {
+          const box = node.getBoundingClientRect();
+          return [box.x - bounds.x, box.y - bounds.y, box.width, box.height].map(
+            (value) => Math.round(value * 100) / 100,
+          );
+        };
+        return {
+          width: bounds.width,
+          words: Array.from(element.querySelectorAll('.question-word'), (word) => ({
+            text: Array.from(
+              word.querySelectorAll('.question-letter-size'),
+              (letter) => letter.textContent,
+            ).join(''),
+            bounds: rect(word),
+            letters: Array.from(word.querySelectorAll('.question-letter'), (letter) => {
+              const range = document.createRange();
+              range.selectNodeContents(letter.querySelector('.question-letter-size')!);
+              return { bounds: rect(letter), naturalWidth: range.getBoundingClientRect().width };
+            }),
+          })),
+          slots: Array.from(element.querySelectorAll('[data-slot]'), rect),
+        };
+      });
+    const original = await readLayout('.question-original');
+    expect(
+      original.words.map((word) => word.text.replace(/[，、。；：！？）】》」』]+$/u, '')),
+    ).toEqual(expect.arrayContaining(expected));
+    for (const word of original.words) {
+      expect(word.bounds[0]).toBeGreaterThanOrEqual(0);
+      expect(word.bounds[0] + word.bounds[2]).toBeLessThanOrEqual(original.width + 0.1);
+      expect(new Set(word.letters.map((letter) => letter.bounds[1])).size).toBe(1);
+      for (const letter of word.letters)
+        expect(letter.bounds[2]).toBeCloseTo(letter.naturalWidth, 1);
+    }
+    await card.locator('.question-toggle').press('Enter');
+    await expect(card.locator('.question-toggle')).not.toHaveClass(/show-original/);
+    expect((await readLayout('.question-encoded')).slots).toEqual(original.slots);
+    await card.locator('.question-toggle').press('Space');
+    await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
+    if (id === '19' || id === '27') {
+      await card.screenshot({
+        path: `.agents/local/protect-privacy-${testInfo.project.name}-english-question-${id}.png`,
+      });
+    }
+  }
+  await expect(page.locator('[data-puzzle-id="1"] .question-word')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 for (const width of [1280, 768, 390, 320]) {
   test(`Latin question uses natural spacing and whole words at ${width}px`, async ({
     page,

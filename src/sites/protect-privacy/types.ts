@@ -7,5 +7,4 @@ export interface PrivacyPuzzle extends Puzzle {
   dlc?: boolean;
   wide?: boolean;
   answerPlaceholder?: string;
-  latinWords?: boolean;
 }
