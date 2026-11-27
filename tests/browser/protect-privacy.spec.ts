@@ -70,6 +70,7 @@ test('fixed difficulty, joint author filters, answers and progress work', async 
 test('solved questions start expanded and toggle without hover changes or reflow', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/protect-privacy/?preview=completion');
   await page.getByRole('button', { name: '关闭文件' }).click();
   for (const id of [1, 14, 15, 34]) {
@@ -78,22 +79,42 @@ test('solved questions start expanded and toggle without hover changes or reflow
     await expect(card).toHaveClass(/solved/);
     const before = (await card.boundingBox())!;
     const toggle = card.locator('.question-toggle');
+    await toggle.evaluate((element) => {
+      element.addEventListener('transitionrun', (event) => {
+        if ((event as TransitionEvent).propertyName === 'clip-path') {
+          element.setAttribute('data-animated-state', element.getAttribute('aria-pressed')!);
+        }
+      });
+    });
+    const expectPolarity = async (expanded: boolean) => {
+      const background = expanded ? 'rgb(247, 244, 233)' : 'rgb(25, 25, 23)';
+      const foreground = expanded ? 'rgb(25, 25, 23)' : 'rgb(247, 244, 233)';
+      for (const selector of ['.card-meta', '.submit']) {
+        await expect(card.locator(selector)).toHaveCSS('background-color', background);
+        await expect(card.locator(selector)).toHaveCSS('color', foreground);
+      }
+    };
     await expect(toggle).toHaveClass(/show-original/);
+    await expectPolarity(true);
     await expect(toggle).toHaveAttribute('aria-label', puzzle.original);
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
     await card.locator('.card-number').hover();
     await toggle.hover({ position: { x: 20, y: 20 } });
     await expect(toggle).toHaveClass(/show-original/);
-    await toggle.click();
+    await card.locator('.card-number').click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
     await expect(toggle).not.toHaveClass(/show-original/);
+    await expectPolarity(false);
+    await expect(toggle).toHaveAttribute('data-animated-state', 'false');
     await expect(toggle).toHaveAttribute('aria-label', puzzle.question);
     await card.locator('.card-number').hover();
     await toggle.hover({ position: { x: 20, y: 20 } });
     await expect(toggle).not.toHaveClass(/show-original/);
-    await toggle.click();
+    await card.locator('.author').click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
     await expect(toggle).toHaveClass(/show-original/);
+    await expectPolarity(true);
+    await expect(toggle).toHaveAttribute('data-animated-state', 'true');
     await page.mouse.move(0, 0);
     await toggle.press('Enter');
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
@@ -103,6 +124,7 @@ test('solved questions start expanded and toggle without hover changes or reflow
     expect(after.width).toBeCloseTo(before.width, 1);
     await toggle.press('Space');
     await expect(toggle).toHaveClass(/show-original/);
+    await expectPolarity(true);
   }
 });
 
@@ -166,8 +188,11 @@ test('solved answers become editable placeholders and repeated submissions prese
   await expect(page.locator('#feedback-2')).toHaveText('请先输入答案。');
   await expect(page.locator('progress')).toHaveJSProperty('value', 2);
   await card.locator('input').fill('错误答案');
+  await card.locator('input').click();
+  await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
   await card.locator('.submit').click();
   await expect(card.locator('.submit')).toHaveText('错误！');
+  await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
   await expect(card).toHaveClass(/solved/);
   await expect(page.locator('progress')).toHaveJSProperty('value', 2);
   await card.locator('input').fill('宮崎駿');
@@ -282,7 +307,7 @@ for (const width of [1280, 390, 320]) {
     );
     await card.evaluate((element) => element.scrollIntoView({ block: 'start' }));
     await page.evaluate(() => window.scrollBy(0, -16));
-    await card.locator('.card-number').click();
+    await page.mouse.click(4, 4);
     await page.screenshot({
       path: `.agents/local/protect-privacy-${testInfo.project.name}-consistent-${width}.png`,
     });
@@ -326,6 +351,7 @@ test('the final answer opens the achievement and preserves the file reveal', asy
 test('explanations appear after solving and remain available after reload', async ({
   page,
 }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/protect-privacy/');
   await expect(page.locator('.answer-explanation')).toHaveCount(0);
   const first = page.locator('[data-puzzle-id="6"]');
@@ -347,16 +373,47 @@ test('explanations appear after solving and remain available after reload', asyn
     await card.locator('input').fill([puzzle.answers].flat()[0]);
     await card.locator('input').press('Enter');
     await expect(card.locator('.answer-explanation')).toBeVisible();
+    await expect(card.locator('.question-toggle')).toHaveClass(/show-original/);
+    await expect(card.locator('.answer-explanation p')).toBeVisible();
     await expect(card.locator('.answer-explanation')).toContainText(excerpt);
   }
   const before = (await first.boundingBox())!;
+  const explanation = first.locator('.answer-explanation');
+  const expandedHeight = (await explanation.boundingBox())!.height;
+  await explanation.evaluate((element) => {
+    element.addEventListener('transitionrun', (event) => {
+      if ((event as TransitionEvent).propertyName !== 'grid-template-rows') return;
+      const direction = element.getAttribute('aria-hidden') === 'true' ? 'closing' : 'opening';
+      const heights: number[] = [];
+      const sample = () => {
+        heights.push(element.getBoundingClientRect().height);
+        element.setAttribute(`data-${direction}-heights`, JSON.stringify(heights));
+        if (element.getAnimations().some((animation) => animation.playState === 'running')) {
+          requestAnimationFrame(sample);
+        }
+      };
+      requestAnimationFrame(sample);
+    });
+  });
   await first.locator('.question-toggle').press('Enter');
   await expect(first.locator('.question-toggle')).not.toHaveClass(/show-original/);
-  await expect(first.locator('.answer-explanation')).toBeVisible();
-  expect((await first.boundingBox())!.height).toBeCloseTo(before.height, 1);
+  await expect(explanation).not.toBeVisible();
+  expect(await explanation.evaluate((element) => element.getBoundingClientRect().height)).toBe(0);
+  const closingHeights: number[] = JSON.parse(
+    (await explanation.getAttribute('data-closing-heights')) ?? '[]',
+  );
+  expect(closingHeights.some((height) => height > 0 && height < expandedHeight)).toBe(true);
+  expect((await first.boundingBox())!.height).toBeLessThan(before.height);
   await first.locator('input').fill('错误答案');
   await first.locator('input').press('Enter');
-  await expect(first.locator('.answer-explanation')).toBeVisible();
+  await expect(explanation).not.toBeVisible();
+  await first.locator('.question-toggle').press('Space');
+  await expect(explanation).toBeVisible();
+  await expect(explanation).toHaveCSS('opacity', '1');
+  const openingHeights: number[] = JSON.parse(
+    (await explanation.getAttribute('data-opening-heights')) ?? '[]',
+  );
+  expect(openingHeights.some((height) => height > 0 && height < expandedHeight)).toBe(true);
   await page.locator('#answer-1').fill('宫崎骏');
   await page.locator('#answer-1').press('Enter');
   await expect(page.locator('[data-puzzle-id="1"] .answer-explanation')).toHaveCount(0);
@@ -366,6 +423,7 @@ test('explanations appear after solving and remain available after reload', asyn
     await expect(page.locator(`[data-puzzle-id="${id}"] .answer-explanation`)).toContainText(
       excerpt,
     );
+    await expect(page.locator(`[data-puzzle-id="${id}"] .answer-explanation p`)).toBeVisible();
   }
   await first.screenshot({
     path: `.agents/local/privacy-explanation-${testInfo.project.name}-desktop.png`,
@@ -376,6 +434,34 @@ test('explanations appear after solving and remain available after reload', asyn
     path: `.agents/local/privacy-explanation-${testInfo.project.name}-mobile.png`,
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('cards without explanations end after their answer row', async ({ page }) => {
+  await page.goto('/protect-privacy/?preview=completion');
+  await page.getByRole('button', { name: '关闭文件' }).click();
+  const peer = page.locator('[data-puzzle-id="15"]');
+  const card = page.locator('[data-puzzle-id="16"]');
+  const body = card.locator('.answer-explanation p');
+  await expect(peer.locator('.answer-explanation')).toHaveCount(0);
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(body).toBeVisible();
+    const left = (await peer.boundingBox())!;
+    const answer = (await peer.locator('form').boundingBox())!;
+    expect(left.y + left.height - answer.y - answer.height).toBeCloseTo(17, 1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    if (width === 1280) {
+      const right = (await card.boundingBox())!;
+      expect(left.y).toBeCloseTo(right.y, 1);
+      expect(left.height).toBeLessThan(right.height);
+      await peer.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: `.agents/local/privacy-explanation-compact-${width}.png` });
+    } else {
+      await card.screenshot({ path: `.agents/local/privacy-explanation-compact-${width}.png` });
+    }
+  }
 });
 
 test('file stays covered before completion and closes back to its trigger', async ({ page }) => {
@@ -449,7 +535,7 @@ test('touch toggles question layers and the completion file', async ({ browser }
     await expect(question).toHaveClass(/show-original/);
     await question.tap();
     await expect(question).not.toHaveClass(/show-original/);
-    await question.tap();
+    await page.locator('[data-puzzle-id="1"] .card-meta').tap();
     await expect(question).toHaveClass(/show-original/);
     await page.goto('/protect-privacy/?preview=completion');
     const reveal = page.locator('.completion-reveal');

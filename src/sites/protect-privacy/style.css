@@ -10,10 +10,8 @@
   --cover-edge: #706d65;
   --cover-white: #f7f4e9;
   --cover-muted: #c7c3b6;
-  --file-heading: #ebe8df;
   --stamp: #962e34;
   --stamp-dark: #752529;
-  --stamp-paper: #f4e2db;
   --signal: #eddb58;
   --signal-paper: #f3e9aa;
   --redaction: #000;
@@ -503,6 +501,7 @@ main {
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 19px 17px;
 }
 
@@ -518,6 +517,10 @@ main {
 
 .card {
   --inset: 16px;
+  --card-state-bg: var(--ink);
+  --card-state-ink: var(--cover-white);
+  --reveal-duration: 440ms;
+  --reveal-easing: cubic-bezier(0.2, 0.72, 0.24, 1);
   position: relative;
   isolation: isolate;
   min-width: 0;
@@ -533,8 +536,13 @@ main {
   flex-direction: column;
 }
 
+.card.solved:has(.question-toggle.show-original) {
+  --card-state-bg: var(--cover-white);
+  --card-state-ink: var(--ink);
+}
+
 .card.solved {
-  --file-heading: var(--stamp-dark);
+  cursor: pointer;
 }
 
 .card-meta {
@@ -545,27 +553,17 @@ main {
   margin-block-end: 12px;
   margin-inline: calc(-1 * var(--inset));
   padding: 8px var(--inset);
-  border-block-end: 1px solid var(--edge);
-  background: var(--file-heading);
-  color: var(--muted);
+  border-block-end: 1px solid var(--ink);
+  background: var(--card-state-bg);
+  color: var(--card-state-ink);
   font-size: var(--text-small);
   line-height: var(--leading-ui);
 }
 
-.card.solved .card-meta {
-  --field-edge: var(--cover-muted);
-  border-block-end-color: var(--file-heading);
-  color: var(--cover-white);
-}
-
-.card.solved .card-number {
-  background: var(--cover-white);
-  color: var(--file-heading);
-}
-
-.card.solved .difficulty {
-  --difficulty-ink: var(--cover-white);
-  color: var(--cover-white);
+.card .card-meta .difficulty {
+  --field-edge: var(--card-state-ink);
+  --difficulty-ink: var(--card-state-ink);
+  color: var(--card-state-ink);
 }
 
 .card-meta > .difficulty {
@@ -577,8 +575,8 @@ main {
 .card-number {
   justify-self: start;
   padding: 1px 0.48em;
-  background: var(--ink);
-  color: var(--cover-white);
+  background: var(--card-state-ink);
+  color: var(--card-state-bg);
   font-family: var(--font-mono);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.02em;
@@ -634,17 +632,6 @@ main {
 .difficulty-segment.is-filled {
   border-color: var(--difficulty-ink);
   background: var(--difficulty-ink);
-}
-
-.question-title {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.question-title {
-  column-gap: 9px;
 }
 
 .question-title h2 {
@@ -777,33 +764,46 @@ main {
 
 @media (prefers-reduced-motion: no-preference) {
   .card-meta,
-  .card-number {
+  .card-number,
+  .card-meta .difficulty,
+  .card.solved .submit {
     transition:
-      background-color 420ms ease-out,
-      color 420ms ease-out,
-      border-color 420ms ease-out;
+      background-color var(--reveal-duration) var(--reveal-easing),
+      color var(--reveal-duration) var(--reveal-easing),
+      border-color var(--reveal-duration) var(--reveal-easing);
   }
 
   .card.is-newly-solved .question-original {
-    animation: answer-reveal 440ms cubic-bezier(0.2, 0.72, 0.24, 1);
+    animation: answer-reveal var(--reveal-duration) var(--reveal-easing);
   }
 
   .card.is-newly-solved .question-encoded {
-    animation: answer-unmask 440ms cubic-bezier(0.2, 0.72, 0.24, 1);
+    animation: answer-unmask var(--reveal-duration) var(--reveal-easing);
   }
 
   .card.is-newly-solved .submit {
-    animation: answer-confirm 440ms ease-out;
+    animation: answer-confirm var(--reveal-duration) var(--reveal-easing);
   }
 
   .question-toggle > .question-text {
     transition:
-      clip-path 240ms cubic-bezier(0.2, 0.72, 0.24, 1),
-      visibility 0s linear 240ms;
+      clip-path var(--reveal-duration) var(--reveal-easing),
+      visibility 0s linear var(--reveal-duration);
   }
 
   .question-toggle:not(.show-original) > .question-encoded,
   .question-toggle.show-original > .question-original {
+    transition-delay: 0s;
+  }
+
+  .answer-explanation {
+    transition:
+      grid-template-rows var(--reveal-duration) var(--reveal-easing),
+      opacity var(--reveal-duration) var(--reveal-easing),
+      visibility 0s linear var(--reveal-duration);
+  }
+
+  .answer-explanation.is-expanded {
     transition-delay: 0s;
   }
 }
@@ -829,9 +829,16 @@ main {
 }
 
 @keyframes answer-confirm {
+  from {
+    background-color: var(--ink);
+    color: var(--cover-white);
+  }
   35% {
-    background-color: var(--signal-paper);
-    box-shadow: 0 0 0 3px #962e3426;
+    box-shadow: 0 0 0 3px #19191726;
+  }
+  to {
+    background-color: var(--card-state-bg);
+    color: var(--card-state-ink);
   }
 }
 
@@ -839,16 +846,31 @@ main {
   display: flex;
   gap: 8px;
   margin-top: auto;
+  cursor: default;
 }
 
 .answer-explanation {
-  margin-block-start: 12px;
-  padding-block-start: 10px;
-  border-block-start: 1px solid var(--edge);
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.answer-explanation.is-expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+
+.answer-explanation-inner {
+  min-block-size: 0;
+  overflow: hidden;
 }
 
 .answer-explanation h3 {
-  margin: 0 0 4px;
+  margin: 12px 0 4px;
+  padding-block-start: 10px;
+  border-block-start: 1px solid var(--edge);
   color: var(--stamp-dark);
   font-size: var(--text-small);
   font-weight: var(--weight-semibold);
@@ -915,23 +937,8 @@ button {
 }
 
 .card.solved .submit {
-  border-color: var(--stamp-dark);
-  background: var(--stamp-dark);
-  color: var(--cover-white);
-}
-
-.card.solved .submit:hover {
-  border-color: var(--stamp);
-  background: var(--stamp);
-}
-
-.card.solved .submit:active {
-  background: var(--stamp-dark);
-}
-
-.submit:disabled {
-  opacity: 1;
-  cursor: default;
+  background: var(--card-state-bg);
+  color: var(--card-state-ink);
 }
 
 button:focus-visible,

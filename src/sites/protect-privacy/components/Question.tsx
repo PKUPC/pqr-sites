@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { PrivacyPuzzle } from '../types';
 
 const describeMasked = (text: string) => text.replace(/□+/g, '［遮盖］');
@@ -8,8 +7,15 @@ const isLatinWordGlyph = (glyph: string) =>
   /^[!-~‘’“”\p{Script=Hiragana}\p{Script=Katakana}]$/u.test(glyph);
 const isWordEnding = (glyph: string) => /^[，、。；：！？）】》」』]$/u.test(glyph);
 
-export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: boolean }) {
-  const [showOriginal, setShowOriginal] = useState(true);
+export function Question({
+  puzzle,
+  solved,
+  showOriginal,
+}: {
+  puzzle: PrivacyPuzzle;
+  solved: boolean;
+  showOriginal: boolean;
+}) {
   const maskedLabel = describeMasked(puzzle.question);
   const latinWords = isLatinLetter(puzzle.original);
   const Surface = solved ? 'button' : 'div';
@@ -90,14 +96,13 @@ export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: bo
         aria-label={solved ? (showOriginal ? puzzle.original : puzzle.question) : undefined}
         aria-pressed={solved ? showOriginal : undefined}
         aria-describedby={solved ? `question-help-${puzzle.id}` : undefined}
-        onClick={solved ? () => setShowOriginal((value) => !value) : undefined}
       >
         {layer(puzzle.glyphs, false)}
         {solved && layer(puzzle.originalGlyphs, true)}
       </Surface>
       {solved && (
         <span className="sr-only" id={`question-help-${puzzle.id}`}>
-          方框表示被遮盖的字。点按或按 Enter、空格，在完整原问句和黑块题面之间切换。
+          方框表示被遮盖的字。点按题卡，或按 Enter、空格，在完整原问句和黑块题面之间切换。
         </span>
       )}
     </h2>

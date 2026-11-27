@@ -118,7 +118,7 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               题卷
             </h2>
             <p className="sort-notes">
-              <span>答对后展开完整原问句，点按题面可切换回黑块题面。</span>
+              <span>答对后展开完整原问句，点按题卡可切换回黑块题面。</span>
               {quiz.hasDifficulty && <span>难度 1–5 级</span>}
             </p>
             <div className="sort-controls">

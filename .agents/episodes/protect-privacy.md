@@ -6,7 +6,8 @@
 ## 维护入口
 
 - [题库](../../src/sites/protect-privacy/puzzles.json) 维护遮盖后的题面、原问句、答案和固定难度。
-- 可选的 `explanation` 字段存放解析，答对后显示在题卡下方，并随已解进度恢复。
+- 可选的 `explanation` 字段存放解析，答对后随原问句展开；盖回黑块时平滑收起。没有解析的题卡按内容高度收尾。
+- 已解卡片通过整卡点击切换题面，输入、提交与文字选择保持独立；题面、黑白配色和解析共用展开状态。刷新后已解题默认展开，原有进度格式沿用。
 - 题面自动识别英文并使用自然字宽、按完整单词换行；遮盖层和原文层以同一份原文字形占位，保持切换对齐。
 - [页面样式](../../src/sites/protect-privacy/style.css) 维护本期视觉和字号。[难度组件](../../src/sites/protect-privacy/components/Difficulty.tsx) 负责五格斜切难度条。
 - [构建转换器](../../scripts/transformer/protect-privacy.mjs) 校验原问句存在，以及题面与原问句的字素槽位数相等，再输出黑条题面和原问句的分格。
