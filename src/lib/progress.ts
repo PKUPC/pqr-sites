@@ -2,6 +2,10 @@ export function progressKey(id: string) {
   return `pqr:${id}:progress:v1`;
 }
 
+export function completionSeenKey(id: string) {
+  return `pqr:${id}:completion-seen:v1`;
+}
+
 export function decodeProgress(raw: string | null, validIds: number[]): Set<number> {
   if (!raw) return new Set();
   try {

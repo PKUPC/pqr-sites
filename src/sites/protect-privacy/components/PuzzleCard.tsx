@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { PuzzleCard as AnswerCard, type AnswerResult } from '../../../components/PuzzleCard';
 import type { QuizCardProps } from '../../../hooks/useQuiz';
 import type { PrivacyPuzzle } from '../types';
@@ -17,6 +17,7 @@ export function PuzzleCard({
   const flash = useRef<Animation | undefined>(undefined);
   const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [recentCorrect, setRecentCorrect] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(true);
   useEffect(
     () => () => {
       flash.current?.cancel();
@@ -28,6 +29,20 @@ export function PuzzleCard({
   const acceptedAnswers = [puzzle.answers]
     .flat()
     .flatMap((answer) => [answer, answer.replaceAll('-', '−')]);
+  function toggleQuestion(event: MouseEvent<HTMLElement>) {
+    if ((event.target as Element).closest('form, a')) return;
+    const selection = window.getSelection();
+    if (
+      event.detail > 0 &&
+      selection &&
+      !selection.isCollapsed &&
+      (event.currentTarget.contains(selection.anchorNode) ||
+        event.currentTarget.contains(selection.focusNode))
+    )
+      return;
+    setShowOriginal((value) => !value);
+  }
+
   function onAttempt(result: AnswerResult) {
     flash.current?.cancel();
     clearTimeout(feedbackTimeout.current);
@@ -61,10 +76,11 @@ export function PuzzleCard({
         return (
           <article
             ref={card}
-            className={`card${puzzle.wide ? ' card-wide' : ''}${solved ? ' solved' : ''}${recentCorrect ? ' is-newly-solved' : ''}`}
+            className={`card${solved ? ' solved' : ''}${recentCorrect ? ' is-newly-solved' : ''}`}
             hidden={hidden}
             data-puzzle-id={puzzle.id}
             aria-labelledby={`puzzle-number-${puzzle.id} question-${puzzle.id}`}
+            onClick={solved ? toggleQuestion : undefined}
           >
             <header className="card-meta">
               <span className="card-number" id={`puzzle-number-${puzzle.id}`}>
@@ -84,7 +100,7 @@ export function PuzzleCard({
             </header>
             <div className="card-top">
               <div className="question-title">
-                <Question puzzle={puzzle} solved={solved} />
+                <Question puzzle={puzzle} solved={solved} showOriginal={showOriginal} />
               </div>
             </div>
             <form onSubmit={answer.onSubmit}>
@@ -116,6 +132,17 @@ export function PuzzleCard({
                       : '提交'}
               </button>
             </form>
+            {solved && puzzle.explanation && (
+              <div
+                className={`answer-explanation${showOriginal ? ' is-expanded' : ''}`}
+                aria-hidden={!showOriginal}
+              >
+                <div className="answer-explanation-inner">
+                  <h3>解析</h3>
+                  <p>{puzzle.explanation}</p>
+                </div>
+              </div>
+            )}
             <div className="feedback" id={`feedback-${puzzle.id}`} role="status" aria-atomic="true">
               {error || (recentCorrect ? `第 ${puzzle.id} 题答对了。` : '')}
             </div>

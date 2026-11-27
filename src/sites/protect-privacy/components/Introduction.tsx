@@ -39,7 +39,8 @@ export function Introduction() {
         </dl>
       </div>
       <p className="rules" id="rules">
-        <strong>规则：</strong>根据题面还原被遮住的文字，输入完整问句所问的答案。
+        <strong>规则：</strong>
+        题目中的人名均被黑条遮住。请根据题面还原人名，输入完整问句所问的答案。
       </p>
     </section>
   );

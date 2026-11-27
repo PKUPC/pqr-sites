@@ -50,6 +50,44 @@ test('abbreviations: wrong answer, both alternatives, persistence, filter and so
   await expect(page.locator('.card:visible').first()).toHaveAttribute('data-puzzle-id', '38');
 });
 
+test('abbreviations: the added hint and optional periods work through the answer form', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/missing-abbreviations/');
+  const hintCard = page.locator('[data-puzzle-id="91"]');
+  await hintCard.getByRole('button', { name: '第 73 题的提示', exact: true }).press('Enter');
+  await expect(hintCard.locator('.float-note')).toBeVisible();
+  await expect(hintCard.locator('.float-note')).toHaveText('○化和○游');
+  await page.screenshot({ path: `.agents/local/abbreviation-hint-${testInfo.project.name}.png` });
+  await page.keyboard.press('Escape');
+  for (const [id, guesses] of [
+    [86, ['ie', 'i.e', 'i.e.', 'ｉ．ｅ．']],
+    [87, ['etc', 'etc.', 'ETC。']],
+    [90, ['sg', 'sg.', 's.g.']],
+  ] as const) {
+    const card = page.locator(`[data-puzzle-id="${id}"]`);
+    for (const guess of guesses) {
+      await card.locator('input').fill(guess);
+      await card.locator('input').press('Enter');
+      await expect(card.locator('.feedback')).toHaveAttribute('data-state', 'solved');
+      await expect(card.locator('input')).toHaveAttribute('aria-invalid', 'false');
+    }
+  }
+  await expect(page.locator('progress')).toHaveJSProperty('value', 3);
+  await page.locator('#answer-86').fill('i,e');
+  await page.locator('#answer-86').press('Enter');
+  await expect(page.locator('#feedback-86')).toHaveAttribute('data-state', 'error');
+  await expect(page.locator('progress')).toHaveJSProperty('value', 3);
+  await page.reload();
+  await expect(page.locator('progress')).toHaveJSProperty('value', 3);
+  for (const id of [86, 87, 90]) {
+    await expect(page.locator(`[data-puzzle-id="${id}"] .feedback`)).toHaveAttribute(
+      'data-state',
+      'solved',
+    );
+  }
+});
+
 test('unicode: new authors, difficulties, readonly canonical answer and persistent original toggle', async ({
   page,
 }) => {
@@ -170,6 +208,9 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
     await expect(page.locator('#answer-1')).toBeFocused();
+    expect(
+      await page.evaluate((id) => localStorage.getItem(`pqr:${id}:completion-seen:v1`), slug),
+    ).toBeNull();
     if (slug === 'missing-abbreviations') {
       await page.locator('#answer-1').fill('奥运会');
       await page.locator('#answer-1').press('Enter');
@@ -205,9 +246,13 @@ test('complete all 20 unicode answers and restore final focus and progress', asy
   await page.keyboard.press('Escape');
   await expect(page.locator('#answer-20')).toBeFocused();
   await page.reload();
+  await expect(page.locator('progress')).toHaveJSProperty('value', 20);
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  const replay = page.getByRole('button', { name: '查看通关界面' });
+  await replay.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.locator('#answer-1')).toBeFocused();
+  await expect(replay).toBeFocused();
 });
 
 test('storage failure and absent runtime Segmenter do not prevent play', async ({ page }) => {

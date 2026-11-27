@@ -1,19 +1,20 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { useQuiz } from '../../hooks/useQuiz';
+import { useCompletion } from '../../components/Completion';
 import type { PrivacyPuzzle } from './types';
 import { getAuthors, site } from './site';
 import { Introduction } from './components/Introduction';
 import { PuzzleCard } from './components/PuzzleCard';
 import { CompletionFile } from './components/CompletionFile';
+import { MasonryGrid } from './components/MasonryGrid';
 
 const strips = ['87%', '46%', '100%', '67%', '35%'];
 
 export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
   const preview = new URLSearchParams(location.search).get('preview') === 'completion';
   const quiz = useQuiz({ storageId: site.id, puzzles, preview, getAuthors });
-  const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>(
-    preview ? 'revealed' : 'closed',
-  );
+  const completion = useCompletion({ storageId: site.id, complete: quiz.complete, preview });
+  const [fileView, setFileView] = useState<'closed' | 'covered' | 'revealed'>('closed');
   const [titleCovered, setTitleCovered] = useState(false);
   const [titleToggled, setTitleToggled] = useState(false);
   const fileButton = useRef<HTMLButtonElement>(null);
@@ -30,7 +31,6 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
     quiz.solve(id, input);
     if (solvedCount === quiz.total) {
       fileReturnFocus.current = input;
-      setFileView('revealed');
     }
   }
 
@@ -118,7 +118,7 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               题卷
             </h2>
             <p className="sort-notes">
-              <span>答对后展开完整原问句，点按题面可切换回黑块题面。</span>
+              <span>答对后展开完整原问句，点按题卡可切换回黑块题面。</span>
               {quiz.hasDifficulty && <span>难度 1–5 级</span>}
             </p>
             <div className="sort-controls">
@@ -153,11 +153,11 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               )}
             </div>
           </div>
-          <div className="grid" id="puzzles" aria-labelledby="puzzle-title" tabIndex={-1}>
+          <MasonryGrid id="puzzles" aria-labelledby="puzzle-title" tabIndex={-1}>
             {main.map((item) => (
               <PuzzleCard key={item.puzzle.id} {...item} onSolve={solve} />
             ))}
-          </div>
+          </MasonryGrid>
           <section
             className="dlc-section"
             aria-labelledby="dlc-title"
@@ -166,11 +166,11 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
             <h2 className="section-tab" id="dlc-title">
               DLC
             </h2>
-            <div className="grid" id="dlc-puzzles">
+            <MasonryGrid id="dlc-puzzles">
               {dlc.map((item) => (
                 <PuzzleCard key={item.puzzle.id} {...item} onSolve={solve} />
               ))}
-            </div>
+            </MasonryGrid>
           </section>
           <p className="archive-navigation">
             <a href="/">返回 PQR 存档首页</a>
@@ -178,13 +178,16 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
         </main>
       </div>
       <CompletionFile
-        open={fileView !== 'closed'}
+        open={completion.open || fileView !== 'closed'}
         covered={!quiz.complete || fileView === 'covered'}
         complete={quiz.complete}
         total={quiz.total}
         dlcTotal={dlcTotal}
         onCoverChange={(covered) => setFileView(covered ? 'covered' : 'revealed')}
-        onDismiss={() => setFileView('closed')}
+        onDismiss={() => {
+          if (completion.open) completion.onDismiss();
+          setFileView('closed');
+        }}
         returnFocus={() =>
           fileReturnFocus.current ??
           shell.current?.querySelector<HTMLInputElement>('.card:not([hidden]) input') ??

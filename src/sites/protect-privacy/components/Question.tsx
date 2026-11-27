@@ -1,12 +1,23 @@
-import { useState } from 'react';
 import type { PrivacyPuzzle } from '../types';
 
 const describeMasked = (text: string) => text.replace(/□+/g, '［遮盖］');
-const isLatinWordGlyph = (glyph: string) => /^[!-~‘’“”]$/u.test(glyph);
+const isLatinLetter = (glyph: string) => /[A-Za-z]/u.test(glyph);
+// Keep mixed-script handles such as ClashのRPC together.
+const isLatinWordGlyph = (glyph: string) =>
+  /^[!-~‘’“”\p{Script=Hiragana}\p{Script=Katakana}]$/u.test(glyph);
+const isWordEnding = (glyph: string) => /^[，、。；：！？）】》」』]$/u.test(glyph);
 
-export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: boolean }) {
-  const [showOriginal, setShowOriginal] = useState(true);
+export function Question({
+  puzzle,
+  solved,
+  showOriginal,
+}: {
+  puzzle: PrivacyPuzzle;
+  solved: boolean;
+  showOriginal: boolean;
+}) {
   const maskedLabel = describeMasked(puzzle.question);
+  const latinWords = isLatinLetter(puzzle.original);
   const Surface = solved ? 'button' : 'div';
 
   function layer(glyphs: string[], original: boolean) {
@@ -36,20 +47,32 @@ export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: bo
     for (let index = 0; index < glyphs.length;) {
       if (glyphs[index] === '\n') {
         content.push(<br key={index++} />);
-      } else if (puzzle.latinWords && puzzle.originalGlyphs[index] === ' ') {
+      } else if (latinWords && puzzle.originalGlyphs[index] === ' ') {
         content.push(' ');
         index++;
-      } else if (puzzle.latinWords && isLatinWordGlyph(puzzle.originalGlyphs[index])) {
+      } else if (latinWords && isLatinWordGlyph(puzzle.originalGlyphs[index])) {
         const start = index;
-        const letters = [];
+        let hasLatinLetter = false;
         while (index < glyphs.length && isLatinWordGlyph(puzzle.originalGlyphs[index])) {
-          letters.push(cell(index++, true));
+          hasLatinLetter ||= isLatinLetter(puzzle.originalGlyphs[index]);
+          index++;
         }
-        content.push(
-          <span key={start} className="question-word">
-            {letters}
-          </span>,
-        );
+        if (hasLatinLetter) {
+          while (index < glyphs.length && isWordEnding(puzzle.originalGlyphs[index])) index++;
+        }
+        const letters = [];
+        for (let slot = start; slot < index; slot++) {
+          letters.push(cell(slot, hasLatinLetter));
+        }
+        if (hasLatinLetter) {
+          content.push(
+            <span key={start} className="question-word">
+              {letters}
+            </span>,
+          );
+        } else {
+          content.push(...letters);
+        }
       } else {
         content.push(cell(index++));
       }
@@ -57,7 +80,7 @@ export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: bo
 
     return (
       <span
-        className={`question-text ${original ? 'question-original' : 'question-encoded'}${puzzle.latinWords ? ' question-text-latin' : ''}`}
+        className={`question-text ${original ? 'question-original' : 'question-encoded'}${latinWords ? ' question-text-latin' : ''}`}
         aria-hidden="true"
       >
         {content}
@@ -73,14 +96,13 @@ export function Question({ puzzle, solved }: { puzzle: PrivacyPuzzle; solved: bo
         aria-label={solved ? (showOriginal ? puzzle.original : puzzle.question) : undefined}
         aria-pressed={solved ? showOriginal : undefined}
         aria-describedby={solved ? `question-help-${puzzle.id}` : undefined}
-        onClick={solved ? () => setShowOriginal((value) => !value) : undefined}
       >
         {layer(puzzle.glyphs, false)}
         {solved && layer(puzzle.originalGlyphs, true)}
       </Surface>
       {solved && (
         <span className="sr-only" id={`question-help-${puzzle.id}`}>
-          方框表示被遮盖的字。点按或按 Enter、空格，在完整原问句和黑块题面之间切换。
+          方框表示被遮盖的字。点按题卡，或按 Enter、空格，在完整原问句和黑块题面之间切换。
         </span>
       )}
     </h2>

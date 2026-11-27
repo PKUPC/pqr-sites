@@ -22,6 +22,23 @@ describe('answer policy', () => {
       }),
     ).toBe(' Ａ B ');
   });
+  it('accepts abbreviations with optional periods only when enabled', () => {
+    const policy = { ignorePeriods: true };
+    for (const [id, guesses] of [
+      [86, ['ie', 'i.e', 'i.e.', ' I. E. ', 'ｉ．ｅ．', 'ie。']],
+      [87, ['etc', 'etc.', 'ETC。']],
+      [90, ['sg', 'sg.', 's.g.', 'ＳＧ．']],
+    ] as const) {
+      const puzzle = abbreviations.find((entry) => entry.id === id)!;
+      for (const guess of guesses) expect(acceptsAnswer(guess, puzzle.answers, policy)).toBe(true);
+    }
+    expect(acceptsAnswer('i,e', 'i.e.', policy)).toBe(false);
+    expect(acceptsAnswer('eg', 'i.e.', policy)).toBe(false);
+    expect(acceptsAnswer(' .。 ', 'ie', policy)).toBe(false);
+    expect(acceptsAnswer('ie', 'i.e.')).toBe(false);
+    expect(acceptsAnswer('15', '1.5')).toBe(false);
+    expect(acceptsAnswer('ie', 'i.e.', { ignorePeriods: false })).toBe(false);
+  });
 });
 
 describe('progress storage', () => {

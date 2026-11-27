@@ -53,6 +53,7 @@ export function PuzzleCard({ puzzle, index, solved, hidden, onSolve }: QuizCardP
     <AnswerCard
       id={puzzle.id}
       answers={puzzle.answers}
+      policy={{ ignorePeriods: true }}
       solved={solved}
       onSolve={onSolve}
       onAttempt={onAttempt}
