@@ -18,7 +18,7 @@ for (const [slug, puzzles] of [
       progress: encodeProgress(new Set(puzzles.slice(0, -1).map((puzzle) => puzzle.id))),
     });
     await page.goto(`/${slug}/`);
-    const replay = page.getByRole('button', { name: '查看通关提示' });
+    const replay = page.getByRole('button', { name: '查看通关界面' });
     const dialog = page.getByRole('dialog');
     await expect(page.getByRole('progressbar')).toHaveJSProperty('value', puzzles.length - 1);
     await expect(replay).toHaveCount(0);
@@ -44,7 +44,7 @@ for (const [slug, puzzles] of [
     await expect(page.getByRole('progressbar')).toHaveJSProperty('value', puzzles.length);
     await expect(dialog).not.toBeVisible();
     await expect(replay).toBeVisible();
-    await expect(page.locator('.progress')).toContainText('回看通关');
+    await expect(page.locator('.progress')).toContainText('查看通关界面');
     await replay.click();
     await expect(dialog).toBeVisible();
     await page.keyboard.press('Escape');
@@ -78,7 +78,7 @@ for (const [slug, puzzles] of [
         { key, solved, seenKey },
       );
       await page.goto(`/${slug}/`);
-      const replay = page.getByRole('button', { name: '查看通关提示' });
+      const replay = page.getByRole('button', { name: '查看通关界面' });
       const dialog = page.getByRole('dialog');
       await expect(replay).toBeVisible();
       await expect(dialog).not.toBeVisible();

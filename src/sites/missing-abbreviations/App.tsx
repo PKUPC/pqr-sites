@@ -28,7 +28,7 @@ export function App({ puzzles }: { puzzles: Puzzle[] }) {
           </div>
           <div className="progress">
             <div className="progress-meta" aria-hidden="true">
-              <span>{quiz.complete ? '回看通关' : '已解'}</span>
+              <span>{quiz.complete ? '查看通关界面' : '已解'}</span>
               <span>
                 <span id="count">
                   {quiz.solved.size} / {quiz.total}
@@ -47,9 +47,9 @@ export function App({ puzzles }: { puzzles: Puzzle[] }) {
                 ref={replayButton}
                 type="button"
                 className="completion-replay"
-                aria-label="查看通关提示"
+                aria-label="查看通关界面"
                 aria-haspopup="dialog"
-                title="查看通关提示"
+                title="查看通关界面"
                 onClick={completion.show}
               />
             )}

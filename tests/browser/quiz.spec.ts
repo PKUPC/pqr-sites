@@ -248,7 +248,7 @@ test('complete all 20 unicode answers and restore final focus and progress', asy
   await page.reload();
   await expect(page.locator('progress')).toHaveJSProperty('value', 20);
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  const replay = page.getByRole('button', { name: '查看通关提示' });
+  const replay = page.getByRole('button', { name: '查看通关界面' });
   await replay.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
