@@ -5,7 +5,7 @@ import { useQuiz } from '../../hooks/useQuiz';
 import type { UnicodePuzzle } from './types';
 import { Introduction } from './components/Introduction';
 import { PuzzleCard } from './components/PuzzleCard';
-import { Completion } from '../../components/Completion';
+import { Completion, useCompletion } from '../../components/Completion';
 import { Difficulty } from './components/Difficulty';
 
 const site = catalog.find((site) => site.id === 'unicode-plus-one')!;
@@ -13,7 +13,9 @@ const site = catalog.find((site) => site.id === 'unicode-plus-one')!;
 export function App({ puzzles }: { puzzles: UnicodePuzzle[] }) {
   const preview = new URLSearchParams(location.search).get('preview') === 'completion';
   const quiz = useQuiz({ storageId: site.id, puzzles, preview });
+  const completion = useCompletion({ storageId: site.id, complete: quiz.complete, preview });
   const shell = useRef<HTMLDivElement>(null);
+  const replayButton = useRef<HTMLButtonElement>(null);
   return (
     <FloatingNotes>
       <a href="#puzzles" className="skip-link">
@@ -29,7 +31,7 @@ export function App({ puzzles }: { puzzles: UnicodePuzzle[] }) {
           </div>
           <div className="progress">
             <div className="progress-summary" aria-hidden="true">
-              <span>已解</span>
+              <span>{quiz.complete ? '回看通关' : '已解'}</span>
               <span>
                 <strong id="count">{quiz.solved.size}</strong> / {quiz.total}
               </span>
@@ -41,6 +43,17 @@ export function App({ puzzles }: { puzzles: UnicodePuzzle[] }) {
               aria-label="答题进度"
               aria-valuetext={`已解 ${quiz.solved.size} / ${quiz.total}`}
             />
+            {quiz.complete && (
+              <button
+                ref={replayButton}
+                type="button"
+                className="completion-replay"
+                aria-label="查看通关提示"
+                aria-haspopup="dialog"
+                title="查看通关提示"
+                onClick={completion.show}
+              />
+            )}
           </div>
         </header>
         <main>
@@ -106,13 +119,16 @@ export function App({ puzzles }: { puzzles: UnicodePuzzle[] }) {
         </main>
       </div>
       <Completion
-        complete={quiz.complete}
+        open={completion.open}
+        onDismiss={completion.onDismiss}
         title={site.title}
         edition={site.edition}
         returnFocus={() =>
-          quiz.returnFocus.current ??
-          shell.current?.querySelector<HTMLInputElement>('.card:not([hidden]) input') ??
-          null
+          completion.manuallyOpened
+            ? replayButton.current
+            : (quiz.returnFocus.current ??
+              shell.current?.querySelector<HTMLInputElement>('.card:not([hidden]) input') ??
+              null)
         }
       />
     </FloatingNotes>

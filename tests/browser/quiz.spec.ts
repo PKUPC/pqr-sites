@@ -208,6 +208,9 @@ for (const slug of ['missing-abbreviations', 'unicode-plus-one']) {
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
     await expect(page.locator('#answer-1')).toBeFocused();
+    expect(
+      await page.evaluate((id) => localStorage.getItem(`pqr:${id}:completion-seen:v1`), slug),
+    ).toBeNull();
     if (slug === 'missing-abbreviations') {
       await page.locator('#answer-1').fill('奥运会');
       await page.locator('#answer-1').press('Enter');
@@ -243,9 +246,13 @@ test('complete all 20 unicode answers and restore final focus and progress', asy
   await page.keyboard.press('Escape');
   await expect(page.locator('#answer-20')).toBeFocused();
   await page.reload();
+  await expect(page.locator('progress')).toHaveJSProperty('value', 20);
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  const replay = page.getByRole('button', { name: '查看通关提示' });
+  await replay.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.locator('#answer-1')).toBeFocused();
+  await expect(replay).toBeFocused();
 });
 
 test('storage failure and absent runtime Segmenter do not prevent play', async ({ page }) => {

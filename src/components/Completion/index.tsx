@@ -1,23 +1,26 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Dialog } from '../Dialog';
 
+export { useCompletion } from './useCompletion';
+
 export function Completion({
-  complete,
+  open,
+  onDismiss,
   title,
   edition,
   returnFocus,
 }: {
-  complete: boolean;
+  open: boolean;
+  onDismiss: () => void;
   title: string;
   edition: number;
   returnFocus: () => HTMLElement | null;
 }) {
   const continueButton = useRef<HTMLButtonElement>(null);
-  const [dismissed, setDismissed] = useState(false);
   return (
     <Dialog
-      open={complete && !dismissed}
-      onDismiss={() => setDismissed(true)}
+      open={open}
+      onDismiss={onDismiss}
       initialFocus={() => continueButton.current}
       returnFocus={returnFocus}
       className="completion-card"

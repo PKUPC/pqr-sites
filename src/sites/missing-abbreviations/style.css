@@ -90,12 +90,26 @@ main {
   font-weight: 650;
 }
 .progress {
+  position: relative;
   display: grid;
   gap: 5px;
   min-width: 190px;
   font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
+}
+.completion-replay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.completion-replay:hover {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
 }
 .progress-meta {
   display: flex;
