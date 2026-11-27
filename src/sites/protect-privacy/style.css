@@ -841,6 +841,27 @@ main {
   margin-top: auto;
 }
 
+.answer-explanation {
+  margin-block-start: 12px;
+  padding-block-start: 10px;
+  border-block-start: 1px solid var(--edge);
+}
+
+.answer-explanation h3 {
+  margin: 0 0 4px;
+  color: var(--stamp-dark);
+  font-size: var(--text-small);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-ui);
+}
+
+.answer-explanation p {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 input,
 button {
   font: inherit;

@@ -45,7 +45,8 @@
     "author": "ClashのRPC",
     "answers": ["米", "m"],
     "difficulty": 3,
-    "original": "一牛顿是一帕斯卡乘以一平方什么？"
+    "original": "一牛顿是一帕斯卡乘以一平方什么？",
+    "explanation": "也存在另一可能性——韦伯和特斯拉，但答案仍然为“米”。"
   },
   {
     "id": 7,
@@ -85,7 +86,8 @@
     "author": "CALS",
     "answers": ["基本电荷", "元电荷", "e"],
     "difficulty": 3,
-    "original": "在国际单位制的七个基本单位中，开尔文由玻尔兹曼常数定义，那么安培由什么定义？"
+    "original": "在国际单位制的七个基本单位中，开尔文由玻尔兹曼常数定义，那么安培由什么定义？",
+    "explanation": "注意摩尔和坎德拉并不来自人物名称。"
   },
   {
     "id": 12,
@@ -126,7 +128,8 @@
     "author": "ClashのRPC",
     "answers": "major",
     "difficulty": 4,
-    "original": "在北约音标字母表里，迈克、阿尔法、朱丽叶、奥斯卡和罗密欧对应的字母按顺序能拼成什么英语单词？"
+    "original": "在北约音标字母表里，迈克、阿尔法、朱丽叶、奥斯卡和罗密欧对应的字母按顺序能拼成什么英语单词？",
+    "explanation": "NATO字母表里中文为两个字的人名只有C-“查理”和M-“麦克”；三个字的人名则只有J-“朱丽叶”、O-“奥斯卡”、R-“罗密欧”和V-“维克托”，可以先通过“不太可能最后三个字母都不是元音”确定O的存在，然后稍作尝试即可得到答案。"
   },
   {
     "id": 17,
@@ -151,7 +154,8 @@
     "author": "Winfrid",
     "answers": "Winfrid",
     "difficulty": 5,
-    "original": "找规律：proton，proton，ClashのRPC，CALS，ClashのRPC，ClashのRPC，CALS，Winfrid，ClashのRPC，ClashのRPC，CALS，Winfrid，ClashのRPC，Winfrid，Winfrid，ClashのRPC，ClashのRPC，proton和ClashのRPC，下一个是谁？"
+    "original": "找规律：proton，proton，ClashのRPC，CALS，ClashのRPC，ClashのRPC，CALS，Winfrid，ClashのRPC，ClashのRPC，CALS，Winfrid，ClashのRPC，Winfrid，Winfrid，ClashのRPC，ClashのRPC，proton和ClashのRPC，下一个是谁？",
+    "explanation": "是按出题顺序排列的每题出题人。"
   },
   {
     "id": 20,
@@ -194,6 +198,7 @@
     "answers": "东坡羹",
     "difficulty": 3,
     "original": "东坡肉、东坡羹、东坡肘子、东坡鱼、东坡豆腐、东坡饼里，哪一个是东坡本人制作并命名的？",
+    "explanation": "苏轼本人写了《东坡羹颂并引》；东坡肉为苏轼本人制作，但是由民间百姓命名；其他则多为后人附会。",
     "dlc": true
   },
   {

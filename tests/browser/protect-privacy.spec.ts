@@ -323,6 +323,61 @@ test('the final answer opens the achievement and preserves the file reveal', asy
   await expect(page.locator('.completion-content')).toHaveAttribute('aria-hidden', 'false');
 });
 
+test('explanations appear after solving and remain available after reload', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/protect-privacy/');
+  await expect(page.locator('.answer-explanation')).toHaveCount(0);
+  const first = page.locator('[data-puzzle-id="6"]');
+  await first.locator('input').fill('错误答案');
+  await first.locator('input').press('Enter');
+  await expect(first.locator('.feedback')).toContainText('答案错误');
+  await expect(first.locator('.answer-explanation')).toHaveCount(0);
+
+  const notes = [
+    [6, '韦伯和特斯拉'],
+    [11, '摩尔和坎德拉'],
+    [16, 'NATO字母表'],
+    [19, '每题出题人'],
+    [23, '《东坡羹颂并引》'],
+  ] as const;
+  for (const [id, excerpt] of notes) {
+    const puzzle = puzzles.find((entry) => entry.id === id)!;
+    const card = page.locator(`[data-puzzle-id="${id}"]`);
+    await card.locator('input').fill([puzzle.answers].flat()[0]);
+    await card.locator('input').press('Enter');
+    await expect(card.locator('.answer-explanation')).toBeVisible();
+    await expect(card.locator('.answer-explanation')).toContainText(excerpt);
+  }
+  const before = (await first.boundingBox())!;
+  await first.locator('.question-toggle').press('Enter');
+  await expect(first.locator('.question-toggle')).not.toHaveClass(/show-original/);
+  await expect(first.locator('.answer-explanation')).toBeVisible();
+  expect((await first.boundingBox())!.height).toBeCloseTo(before.height, 1);
+  await first.locator('input').fill('错误答案');
+  await first.locator('input').press('Enter');
+  await expect(first.locator('.answer-explanation')).toBeVisible();
+  await page.locator('#answer-1').fill('宫崎骏');
+  await page.locator('#answer-1').press('Enter');
+  await expect(page.locator('[data-puzzle-id="1"] .answer-explanation')).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('.answer-explanation')).toHaveCount(5);
+  for (const [id, excerpt] of notes) {
+    await expect(page.locator(`[data-puzzle-id="${id}"] .answer-explanation`)).toContainText(
+      excerpt,
+    );
+  }
+  await first.screenshot({
+    path: `.agents/local/privacy-explanation-${testInfo.project.name}-desktop.png`,
+  });
+  await page.setViewportSize({ width: 320, height: 900 });
+  const longNote = page.locator('[data-puzzle-id="16"]');
+  await longNote.screenshot({
+    path: `.agents/local/privacy-explanation-${testInfo.project.name}-mobile.png`,
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test('file stays covered before completion and closes back to its trigger', async ({ page }) => {
   await page.goto('/protect-privacy/');
   await page.getByRole('button', { name: '查看文件' }).click();

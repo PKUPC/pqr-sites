@@ -116,6 +116,12 @@ export function PuzzleCard({
                       : '提交'}
               </button>
             </form>
+            {solved && puzzle.explanation && (
+              <div className="answer-explanation">
+                <h3>解析</h3>
+                <p>{puzzle.explanation}</p>
+              </div>
+            )}
             <div className="feedback" id={`feedback-${puzzle.id}`} role="status" aria-atomic="true">
               {error || (recentCorrect ? `第 ${puzzle.id} 题答对了。` : '')}
             </div>
