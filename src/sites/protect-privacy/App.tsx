@@ -5,6 +5,7 @@ import { getAuthors, site } from './site';
 import { Introduction } from './components/Introduction';
 import { PuzzleCard } from './components/PuzzleCard';
 import { CompletionFile } from './components/CompletionFile';
+import { MasonryGrid } from './components/MasonryGrid';
 
 const strips = ['87%', '46%', '100%', '67%', '35%'];
 
@@ -153,11 +154,11 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
               )}
             </div>
           </div>
-          <div className="grid" id="puzzles" aria-labelledby="puzzle-title" tabIndex={-1}>
+          <MasonryGrid id="puzzles" aria-labelledby="puzzle-title" tabIndex={-1}>
             {main.map((item) => (
               <PuzzleCard key={item.puzzle.id} {...item} onSolve={solve} />
             ))}
-          </div>
+          </MasonryGrid>
           <section
             className="dlc-section"
             aria-labelledby="dlc-title"
@@ -166,11 +167,11 @@ export function App({ puzzles }: { puzzles: PrivacyPuzzle[] }) {
             <h2 className="section-tab" id="dlc-title">
               DLC
             </h2>
-            <div className="grid" id="dlc-puzzles">
+            <MasonryGrid id="dlc-puzzles">
               {dlc.map((item) => (
                 <PuzzleCard key={item.puzzle.id} {...item} onSolve={solve} />
               ))}
-            </div>
+            </MasonryGrid>
           </section>
           <p className="archive-navigation">
             <a href="/">返回 PQR 存档首页</a>

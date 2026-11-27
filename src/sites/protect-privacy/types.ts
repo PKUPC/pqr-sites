@@ -5,7 +5,6 @@ export interface PrivacyPuzzle extends Puzzle {
   glyphs: string[];
   originalGlyphs: string[];
   dlc?: boolean;
-  wide?: boolean;
   answerPlaceholder?: string;
   explanation?: string;
 }

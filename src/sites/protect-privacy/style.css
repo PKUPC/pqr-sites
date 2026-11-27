@@ -2,7 +2,7 @@
   color-scheme: light;
   --ink: #191917;
   --muted: #56544e;
-  --desk: #1c1c19;
+  --desk: #22221f;
   --card: #f8f6ef;
   --edge: #bcb8ad;
   --field-edge: #7f7a70;
@@ -57,7 +57,7 @@ body {
   background-color: var(--desk);
   background-image:
     radial-gradient(circle at 1px 1px, #ffffff15 0.5px, transparent 0.9px),
-    linear-gradient(#2c2c27, var(--desk) 34rem);
+    linear-gradient(#30302b, var(--desk) 34rem);
   background-size:
     7px 9px,
     100% 100%;
@@ -499,10 +499,9 @@ main {
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: 19px 17px;
+  --masonry-columns: 2;
+  --card-gap: 18px;
+  position: relative;
 }
 
 .dlc-section {
@@ -521,14 +520,12 @@ main {
   --card-state-ink: var(--cover-white);
   --reveal-duration: 440ms;
   --reveal-easing: cubic-bezier(0.2, 0.72, 0.24, 1);
-  position: relative;
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
   isolation: isolate;
   min-width: 0;
   padding: 0 var(--inset) 16px;
-}
-
-.card-wide {
-  grid-column: 1 / -1;
 }
 
 .card:not([hidden]) {
@@ -1198,7 +1195,7 @@ span.completion-mask {
     width: calc(100% - 40px);
   }
   .grid {
-    grid-template-columns: minmax(0, 1fr);
+    --masonry-columns: 1;
   }
 }
 

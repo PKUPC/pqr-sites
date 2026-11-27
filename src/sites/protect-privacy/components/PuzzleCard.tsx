@@ -76,7 +76,7 @@ export function PuzzleCard({
         return (
           <article
             ref={card}
-            className={`card${puzzle.wide ? ' card-wide' : ''}${solved ? ' solved' : ''}${recentCorrect ? ' is-newly-solved' : ''}`}
+            className={`card${solved ? ' solved' : ''}${recentCorrect ? ' is-newly-solved' : ''}`}
             hidden={hidden}
             data-puzzle-id={puzzle.id}
             aria-labelledby={`puzzle-number-${puzzle.id} question-${puzzle.id}`}

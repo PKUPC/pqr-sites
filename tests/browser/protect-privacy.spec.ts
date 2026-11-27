@@ -454,7 +454,6 @@ test('cards without explanations end after their answer row', async ({ page }) =
     );
     if (width === 1280) {
       const right = (await card.boundingBox())!;
-      expect(left.y).toBeCloseTo(right.y, 1);
       expect(left.height).toBeLessThan(right.height);
       await peer.scrollIntoViewIfNeeded();
       await page.screenshot({ path: `.agents/local/privacy-explanation-compact-${width}.png` });
